@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#151722">
+<title>Melia's iPhone — Story Prototype</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="stage" id="stage">
+  <section class="phone" id="phone">
+    <button class="side" id="sideButton" aria-label="Side button (lock)"></button>
+    <div class="hardware" id="hardware">
+      <div class="island"></div>
+      <div class="statusbar"><span id="clock">10:41</span><span class="sb-right"><span class="sig"><i></i><i></i><i></i><i></i></span><span>5G</span><span class="batt"><i></i></span></span></div>
+      <div id="screen" class="screen">
+
+        <section id="lock" class="lock">
+          <div class="lock-date" id="lockDate"></div>
+          <div class="lock-time" id="lockTime"></div>
+          <div id="lockWidgets" class="lock-widgets"></div>
+          <div id="notifications" class="notifications"></div>
+          <div class="lock-actions"><button data-action="flashlight" aria-label="Flashlight">◉</button><button data-action="camera" aria-label="Camera">◎</button></div>
+          <button id="unlock">Swipe up to unlock</button>
+          <div class="homebar" data-nav="homebar"></div>
+        </section>
+
+        <section id="passcode" class="passcode hidden">
+          <button data-action="lock" class="cancel">Cancel</button>
+          <h2>Enter Passcode</h2>
+          <div id="dots" class="dots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div id="keypad" class="keypad">
+            <button data-key="1">1</button><button data-key="2">2<small>ABC</small></button><button data-key="3">3<small>DEF</small></button>
+            <button data-key="4">4<small>GHI</small></button><button data-key="5">5<small>JKL</small></button><button data-key="6">6<small>MNO</small></button>
+            <button data-key="7">7<small>PQRS</small></button><button data-key="8">8<small>TUV</small></button><button data-key="9">9<small>WXYZ</small></button>
+            <span></span><button data-key="0">0</button><button data-key="del" aria-label="Delete">⌫</button>
+          </div>
+          <p id="error"></p>
+          <div class="homebar dark"></div>
+        </section>
+
+        <section id="home" class="home hidden">
+          <div id="homeDate" class="home-date"></div>
+          <div id="pages" class="pages"></div>
+          <div id="pageDots" class="page-dots"></div>
+          <button class="home-search" data-action="search">⌕ Search</button>
+          <div id="dock" class="dock"></div>
+          <div class="homebar" data-nav="homebar"></div>
+        </section>
+
+        <section id="app" class="app hidden">
+          <header>
+            <button id="back" aria-label="Back"><span class="chevron">‹</span><span id="backLabel"></span></button>
+            <b id="title"></b>
+            <span></span>
+          </header>
+          <div id="content" class="content"></div>
+          <div id="mini" class="mini hidden"></div>
+          <nav id="tabs"></nav>
+          <div class="homebar dark" data-nav="homebar"></div>
+        </section>
+
+        <section id="search" class="search hidden">
+          <header><span></span><b>Search</b><button data-action="home">Done</button></header>
+          <input id="searchInput" placeholder="Search apps and content" autocomplete="off">
+          <div id="searchResults"></div>
+          <div class="homebar dark" data-nav="homebar"></div>
+        </section>
+
+      </div>
+    </div>
+  </section>
+  <aside>
+    <b>Interactive story prototype</b>
+    <p>Passcode: <code>280108</code></p>
+    <p>Click the bar at the bottom of the screen to go home, the side button to lock. Esc goes back.</p>
+    <p>Fictional simulation. It reads no real phone data and contains no malware.</p>
+  </aside>
+</main>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
