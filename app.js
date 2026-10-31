@@ -1,94 +1,101 @@
-const app=document.getElementById("app"),clueCount=document.getElementById("clue-count");
-const clueDefinitions={
- location:{title:"Location sharing was already enabled",detail:"Find My shows that Melia is sharing her location with Ezra. She doesn't remember agreeing to it."},
- setup:{title:"A setup she doesn't remember",detail:"The phone's location-sharing settings appear to have been configured before Melia explored them herself."},
- message:{title:"A message that doesn't quite add up",detail:"Ezra refers to where Melia has been without her remembering telling him."},
- note:{title:"A note in the wrong place",detail:"A note contains a reminder about checking her location. It isn't written in Melia's usual style."},
- performance:{title:"The phone feels inconsistent",detail:"A few apps hesitate or take longer to load. This is suspicious in context, but not proof of malware by itself."}
-};
-let found=new Set(JSON.parse(localStorage.getItem("cttb-clues")||"[]"));
-let history=[],current="home",chatStage=0,chatLines=[];
-const openingChat=[
- {type:"date",text:"Monday, 12 October"},
- {from:"ezra",text:"You're late."},
- {from:"me",text:"i'm literally downstairs"},
- {from:"ezra",text:"That is generally where people wait when they're meeting someone."},
- {from:"me",text:"you could've gone inside and ordered"},
- {from:"ezra",text:"And miss the pleasure of watching you decide what you want for twelve minutes? No."},
- {type:"date",text:"Wednesday, 14 October"},
- {from:"me",text:"the sandwich here is criminally small"},
- {from:"ezra",text:"You bought it anyway."},
- {from:"me",text:"i was hungry. don't confuse desperation with approval"},
- {from:"ezra",text:"I'll remember that next time I buy lunch."},
- {from:"me",text:"buy me something with actual portion size then"},
- {from:"ezra",text:"Demanding. Fine."},
- {type:"date",text:"Saturday, 17 October · 8:42 PM"},
- {from:"ezra",text:"You working late?"},
- {from:"me",text:"yeah. closing"},
- {from:"ezra",text:"Eat something before you finish. Not coffee."},
- {from:"me",text:"bossy"},
- {from:"ezra",text:"Observant."},
- {type:"date",text:"Tuesday, 20 October · 9:16 PM"},
- {from:"me",text:"can i tell you something weird"},
- {from:"ezra",text:"Of course. What's happened?"},
- {from:"me",text:"i found my underwear in my locker at uni"},
- {from:"me",text:"the public changing locker. not my room locker."},
- {from:"me",text:"there was blood on it. period blood. someone put it there"},
- {from:"me",text:"i don't even know how they got it"},
- {from:"ezra",text:"When did you find it?"},
- {from:"me",text:"three days ago. i didn't know what to do so i just left"},
- {from:"ezra",text:"Melia. Why didn't you tell me then?"},
- {from:"me",text:"because i thought maybe i was overreacting. but it's been bothering me"},
- {from:"ezra",text:"You're not overreacting. That's a horrible thing to find."}
+(() => {
+const PASSCODE = "280108";
+const $ = id => document.getElementById(id);
+const lock = $("lockscreen"), pass = $("passcode"), home = $("home"), appview = $("appview");
+let entered = "", currentApp = null, clues = [], step = 0;
+const clueData = [
+ ["The locker","The underwear was left inside Melia's assigned UCL locker, not somewhere public-facing."],
+ ["The stain","The blood stain was old enough to have dried. Melia recognises it as her own period blood."],
+ ["Access","Melia cannot work out how anyone got access to the item or the locker."],
+ ["CCTV","The corridor camera does not give them a useful view of the locker itself."],
+ ["The timeline","Ezra was away at a Van Der Berg customer gathering when Melia first found it."]
 ];
-function save(){localStorage.setItem("cttb-clues",JSON.stringify([...found]));clueCount.textContent=`${found.size} / 5 clues found`}
-function discover(id){if(!found.has(id)){found.add(id);save()}}
-function icon(name,symbol,color,target=name){return `<button class="app-icon" data-open="${target}"><span class="icon-tile" style="background:${color}">${symbol}</span><span>${name}</span></button>`}
-function header(title,back="home"){return `<div class="page-header"><button class="back" data-open="${back}">‹ Back</button><span></span></div><h2 class="page-title">${title}</h2>`}
-function row(title,subtitle,symbol,color,target,value="›"){return `<button class="list-row" data-open="${target}"><span class="row-icon" style="background:${color}">${symbol}</span><span class="row-copy"><strong>${title}</strong>${subtitle?`<small>${subtitle}</small>`:""}</span><span class="value">${value}</span></button>`}
-function home(){return `<div class="home-screen"><p class="date-line">Tuesday, 20 October</p><div class="home-time">9:41</div><div class="widget"><small>TUESDAY · LONDON</small><strong>One thing at a time.</strong><p>You have no new reminders.</p></div><div class="app-grid">${icon("Messages","●","#279b65","messages")}${icon("Photos","✿","#e8e8ee","photos")}${icon("Camera","◉","#555a64","camera")}${icon("Find My","⌖","#2785df","findmy")}${icon("Settings","⚙","#777d88","settings")}${icon("Notes","▤","#e2c95b","notes")}${icon("Safari","◉","#2e8fda","safari")}${icon("Clock","◷","#343a48","clock")}</div><div class="dock">${icon("Phone","☎","#32b968","phone")}${icon("Mail","✉","#328de0","mail")}${icon("Music","♫","#d94d69","music")}${icon("Files","▣","#e0b84e","files")}</div></div>`}
-function settings(){return `${header("Settings")}<div class="glass-card person"><div class="avatar">M</div><div><strong>Melia Nadya</strong><small>Apple Account · iPhone 17</small></div></div><div class="list-card">${row("Airplane Mode","","✈","#b5a16a","airplane","Off")}${row("Wi-Fi","Connected","◉","#3789d8","wifi","›")}${row("Bluetooth","On","ᛒ","#3789d8","bluetooth","On")}</div><p class="section-label">Settings</p><div class="list-card">${row("General","Software update, storage","⚙","#858b96","general")}${row("Privacy & Security","Location, tracking and access","▣","#4d9b74","privacy")}${row("Battery","Battery usage","▰","#48a86c","battery")}${row("Notifications","App alerts","◉","#dc7651","notifications")}</div>`}
-function privacy(){return `${header("Privacy & Security","settings")}<p class="page-subtitle">Control what information is shared with apps and people.</p><div class="list-card">${row("Location Services","On","⌖","#4d9b74","location","On")}${row("Tracking","Allow apps to request to track","◉","#777d88","tracking","Off")}${row("Safety Check","Manage sharing and access","◇","#d39b43","safety")}</div>`}
-function locationSettings(){discover("setup");return `${header("Location Services","privacy")}<div class="list-card"><div class="list-row"><span class="row-copy"><strong>Location Services</strong><small>Allow location access for apps and services</small></span><span class="toggle on"></span></div>${row("Share My Location","Sharing from this iPhone","⌖","#3988d9","sharelocation","On")}</div><p class="section-label">APP PERMISSIONS</p><div class="list-card">${row("Maps","While Using","➤","#3988d9","permission")}${row("Weather","While Using","☼","#55a9d6","permission")}</div>`}
-function shareLocation(){discover("location");return `${header("Share My Location","location")}<div class="glass-card"><strong style="font-size:13px">Share My Location</strong><p>Your location is shared with the people listed below.</p><div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px"><span style="font-size:12px">Share My Location</span><span class="toggle on"></span></div></div><p class="section-label">PEOPLE</p><div class="list-card"><button class="list-row" data-open="ezra-location"><span class="avatar">E</span><span class="row-copy"><strong>Ezra</strong><small>Can see your location</small></span><span class="chevron">›</span></button></div><div class="info-card"><strong style="font-size:12px">You don't remember setting this up.</strong><p>Did you agree to it when Ezra gave you the phone?</p><button class="choice" data-action="inspect-location">Add this to investigation notes</button></div>`}
-function ezraLocation(){discover("location");return `${header("Ezra","sharelocation")}<div class="glass-card person"><div class="avatar">E</div><div><strong>Ezra</strong><small>Location sharing · Enabled</small></div></div><div class="map-placeholder"><span class="map-pin">📍</span><span class="map-caption">Location sharing is active</span></div><div class="info-card"><strong style="font-size:12px">Can see your location</strong><p>Melia doesn't remember choosing this.</p><button class="choice" data-action="inspect-location">Record finding</button></div>`}
-function messages(){return `${header("Messages")}<div class="list-card"><button class="list-row" data-open="ezra-chat"><span class="avatar">E</span><span class="row-copy"><strong>Ezra</strong><small>You're not overreacting. That's a horrible thing to find.</small></span><span class="value">9:24 PM</span></button><button class="list-row" data-open="sofia-chat"><span class="avatar">S</span><span class="row-copy"><strong>Sofia</strong><small>Are you coming for lunch?</small></span><span class="value">Yesterday</span></button></div>`}
-function renderChat(){let messagesHtml=chatLines.map(m=>m.type==="date"?`<div class="message-time">${m.text}</div>`:`<div class="message ${m.from==="me"?"sent":"received"}">${m.text}</div>`).join("");let choices="";
-if(chatStage===0){choices=`<div class="choice-panel"><h3>How does Melia respond?</h3><button class="choice" data-choice="details">Explain what she found<small>She tells him it was in the public UCL changing locker, not her accommodation.</small></button><button class="choice" data-choice="disgusted">Vent about how disgusting it was<small>She's more upset by the violation than interested in investigating yet.</small></button><button class="choice" data-choice="uncertain">Admit she has been thinking about it for days<small>She isn't sure whether she's overreacting.</small></button></div>`}
-else if(chatStage===1){choices=`<div class="choice-panel"><h3>Ezra asks a few questions. What does she focus on?</h3><button class="choice" data-choice="access">How could anyone have got it?<small>She wants to understand how her underwear ended up there.</small></button><button class="choice" data-choice="cctv">Whether the university has CCTV<small>She wants to check the practical options.</small></button><button class="choice" data-choice="room">Whether someone could have entered her room<small>The incident makes her think about her own belongings too.</small></button></div>`}
-else if(chatStage===2){choices=`<div class="choice-panel"><h3>Ezra offers to help. How does Melia answer?</h3><button class="choice" data-choice="help">Can you help me figure it out tomorrow?<small>She asks him to come with her to check what she can.</small></button><button class="choice" data-choice="alone">I'll ask the university myself<small>She wants to handle it without making it a bigger thing.</small></button><button class="choice" data-choice="embarrassed">I don't even want to explain this to anyone else<small>She admits how embarrassing and uncomfortable it feels.</small></button></div>`}
-else if(chatStage===3){choices=`<div class="info-card"><strong style="font-size:12px">A few days later</strong><p>They have checked what they can. Nothing clearly explains how the underwear got into the locker. Melia is still uncomfortable about returning to her room.</p><button class="choice" data-action="continue-belgravia">Continue to Ezra's next message</button></div>`}
-else if(chatStage===4){choices=`<div class="choice-panel"><h3>How does Melia respond to the offer?</h3><button class="choice" data-choice="why">Why your place?<small>Ask why he thinks staying with him is the answer.</small></button><button class="choice" data-choice="inconvenience">I don't want to inconvenience you<small>She doesn't want to impose on him.</small></button><button class="choice" data-choice="suspicious">You're very eager to get me into your house<small>Dry teasing, not an accusation.</small></button></div>`}
-else if(chatStage===5){choices=`<div class="choice-panel"><h3>What does Melia decide?</h3><button class="choice" data-choice="accept">Fine. Just for a few days.<small>She accepts because she wants to feel safe for now.</small></button><button class="choice" data-choice="condition">I want my own room. And a key.<small>She sets practical conditions.</small></button><button class="choice" data-choice="delay">I'll think about it<small>She doesn't commit yet.</small></button></div>`}
-else{choices=`<div class="info-card"><strong style="font-size:12px">Conversation paused</strong><p>You've reached the end of this exchange. Explore the phone, or replay the conversation from the beginning.</p><button class="choice" data-action="restart-chat">Replay conversation</button></div>`}
-return `${header("Ezra","messages")}<div class="chat-contact"><div class="avatar">E</div><strong>Ezra Van Der Berg</strong><small>iMessage</small></div>${messagesHtml}${choices}<div class="input-bar"><div class="input-pill">iMessage</div><button class="send-button" aria-label="Send">↑</button></div>`}
-const replyMap={
- details:{me:["the public changing locker at ucl. not my room locker or anything","i must've left it there after changing and someone put it back. except i don't know how they got it"],ezra:["I see. So someone had access to the locker, or to the underwear before it got there.","Was it definitely yours?"],next:1},
- disgusted:{me:["it's just disgusting. who even does something like that","and why keep it in my locker? what am i supposed to do with that"],ezra:["I can't imagine a reasonable explanation for it.","You shouldn't have had to find that. Was anyone around when you opened the locker?"],next:1},
- uncertain:{me:["it's been three days and i'm still thinking about it which is probably stupid","i keep wondering who touched it and how they got it"],ezra:["It isn't stupid. Someone crossed a boundary, and you don't know who or why.","Did you tell anyone at the university?"],next:1},
- access:{me:["that's what i keep thinking about. how did they even get it?"],ezra:["Do you remember where you last had it? And who could access that changing area?","We can go through it properly. Don't jump to conclusions yet."],next:2},
- cctv:{me:["i could ask if there's cctv near the changing area"],ezra:["That's sensible. They may not show inside the locker area, but the corridor could still help.","I'll go with you if you want."],next:2},
- room:{me:["now i'm thinking about whether someone could've gone through my stuff at home too"],ezra:["Have you noticed anything missing or moved?","Let's check before assuming someone has been inside your room."],next:2},
- help:{me:["can you come with me tomorrow? i don't really want to explain it to some random person alone"],ezra:["Of course. Tell me when you're finished with class.","We'll ask what we can and check the areas that make sense."],next:3},
- alone:{me:["i'll ask the university myself first. maybe it's nothing"],ezra:["Alright. You don't have to decide everything tonight.","Message me if you want me to come along."],next:3},
- embarrassed:{me:["i don't even want to explain this to anyone else. it's embarrassing"],ezra:["You don't need to be embarrassed. You haven't done anything wrong.","You can tell me. I won't make a spectacle of it."],next:3},
- why:{me:["why your place?"],ezra:["Because you're uncomfortable going back to your room, and mine is quieter. There's space.","I'm offering you a guest room, Melia. Not proposing marriage."],next:5},
- inconvenience:{me:["i don't want to inconvenience you"],ezra:["You won't. I have an entire guest room that currently serves no purpose.","Besides, I'd rather know you're somewhere you're comfortable."],next:5},
- suspicious:{me:["you're very eager to get me into your house"],ezra:["I'm being practical. You're the one making it sound scandalous.","Would you prefer a hotel? You'd hate the cost."],next:5},
- accept:{me:["fine. just for a few days"],ezra:["Good. I'll have the room ready.","Pack what you need. You can decide when you want to go back."],next:6},
- condition:{me:["i want my own room. and a key"],ezra:["Naturally. It's a guest room, not a cupboard.","I'll leave a key for you. You don't need to ask me every time you want to come downstairs."],next:6},
- delay:{me:["i'll think about it"],ezra:["Alright. No rush.","If you change your mind, tell me. I'll arrange the car."],next:6}
-};
-function addReply(choice){const r=replyMap[choice];if(!r)return;r.me.forEach(t=>chatLines.push({from:"me",text:t}));r.ezra.forEach(t=>chatLines.push({from:"ezra",text:t}));chatStage=r.next;render("ezra-chat")}
-function advanceBelgravia(){chatLines.push({type:"date",text:"Friday, 23 October · 10:18 PM"},{from:"ezra",text:"You don't have to stay there tonight."},{from:"ezra",text:"Stay at mine for a few days. At least until you feel comfortable going back."});chatStage=4;render("ezra-chat")}
-function sofiaChat(){return `${header("Sofia","messages")}<div class="chat-contact"><div class="avatar">S</div><strong>Sofia Rania</strong><small>iMessage</small></div><div class="message-time">Monday · 1:08 PM</div><div class="message received">Are you coming for lunch?</div><div class="message sent">Can't today. I'm working later.</div><div class="message received">Okay, another time 💗</div>`}
-function notes(){discover("note");return `${header("Notes")}<div class="note"><small>Untitled · Recently Edited</small><h3 style="font-size:17px;margin:10px 0">Remember</h3>Check location before she leaves. Make sure sharing stays on.<br><br>Don't bring it up unless she asks.<br><br><span style="font-size:10px;color:#776e5d">No folder · No clear author</span></div><div class="info-card"><strong style="font-size:12px">This isn't Melia's note.</strong><p>She doesn't remember writing it.</p><button class="choice" data-action="inspect-note">Add note to investigation</button></div>`}
-function notebook(){let cards=[...found].map(id=>`<div class="clue-card"><span class="clue-mark">✦</span><div><strong>${clueDefinitions[id].title}</strong><p>${clueDefinitions[id].detail}</p></div></div>`).join("");return `${header("Investigation notebook","home")}<p class="page-subtitle">${found.size} of 5 findings recorded.</p>${cards||'<div class="empty">No findings yet. Explore the phone and look for details Melia doesn\'t remember setting up.</div>'}${found.size>=3?'<div class="info-card"><strong style="font-size:12px">A pattern is forming.</strong><p>One setting could be an oversight. A message could be a coincidence. Together, they deserve a closer look.</p></div>':""}`}
-function generic(title,back="home",desc="This part of the phone hasn't been explored in this prototype."){return `${header(title,back)}<div class="empty">${desc}</div>`}
-function render(screen){current=screen;const views={home,settings,privacy,location:locationSettings,sharelocation,"ezra-location":ezraLocation,messages,"ezra-chat":renderChat,"sofia-chat":sofiaChat,notes,notebook,photos:()=>generic("Photos"),camera:()=>generic("Camera"),safari:()=>generic("Safari"),clock:()=>generic("Clock"),phone:()=>generic("Phone"),mail:()=>generic("Mail"),music:()=>generic("Music"),files:()=>generic("Files"),general:()=>generic("General","settings"),battery:()=>generic("Battery","settings"),notifications:()=>generic("Notifications","settings"),wifi:()=>generic("Wi-Fi","settings"),bluetooth:()=>generic("Bluetooth","settings"),tracking:()=>generic("Tracking","privacy"),safety:()=>generic("Safety Check","privacy"),permission:()=>generic("App Permission","location"),airplane:()=>generic("Airplane Mode","settings")};app.innerHTML=(views[screen]||home)();app.scrollTop=app.scrollHeight}
-function go(screen){history.push(current);if(screen==="ezra-chat"&&chatLines.length===0)chatLines=[...openingChat];render(screen)}
-document.addEventListener("click",e=>{const open=e.target.closest("[data-open]");if(open){go(open.dataset.open);return}const choice=e.target.closest("[data-choice]")?.dataset.choice;if(choice){addReply(choice);return}const action=e.target.closest("[data-action]")?.dataset.action;if(action==="inspect-location"){discover("location");render(current)}if(action==="inspect-note"){discover("note");render(current)}if(action==="continue-belgravia")advanceBelgravia();if(action==="restart-chat"){chatStage=0;chatLines=[...openingChat];render("ezra-chat")}});
-document.getElementById("home-indicator").addEventListener("click",()=>{history=[];render("home")});
-document.getElementById("notes-button").addEventListener("click",()=>go("notebook"));
-document.getElementById("reset-button").addEventListener("click",()=>{if(confirm("Reset this investigation and clear all discovered clues?")){found=new Set();history=[];chatStage=0;chatLines=[];localStorage.removeItem("cttb-clues");save();render("home")}});
-save();render("home");
+function show(el){[lock,pass,home,appview].forEach(x=>x.classList.add("hidden"));el.classList.remove("hidden")}
+function unlockStart(){entered="";updateDots();$("pass-error").textContent="";show(pass)}
+$("unlock-hint").addEventListener("click",unlockStart);
+lock.addEventListener("click",e=>{if(e.target.id!=="unlock-hint")unlockStart()});
+$("pass-back").addEventListener("click",()=>show(lock));
+function updateDots(){$("dots").querySelectorAll("i").forEach((d,i)=>d.classList.toggle("filled",i<entered.length))}
+$("keypad").addEventListener("click",e=>{const b=e.target.closest("[data-digit]");if(!b)return;if(entered.length<6){entered+=b.dataset.digit;updateDots();if(entered.length===6)setTimeout(checkPass,160)}});
+$("delete-digit").addEventListener("click",()=>{entered=entered.slice(0,-1);updateDots();$("pass-error").textContent=""});
+function checkPass(){if(entered===PASSCODE){show(home)}else{ $("pass-error").textContent="Incorrect Passcode";setTimeout(()=>{entered="";updateDots()},550)}}
+document.querySelectorAll("[data-app]").forEach(b=>b.addEventListener("click",()=>openApp(b.dataset.app)));
+function appShell(title,content,back="Home"){return `<div class="app-top"><button class="back-button" data-back>${back==="Home"?"‹": "‹ "+back}</button><h2>${title}</h2><span style="width:35px"></span></div><div class="app-content">${content}</div>`}
+function openApp(name){
+ currentApp=name; appview.innerHTML="";
+ if(name==="messages"){renderMessages();return}
+ const screens={
+ settings: appShell("Settings",`<div class="list-card"><div class="list-row"><div class="row-main"><span class="row-icon" style="background:#858b94">◉</span><div>Melia Nadya<small>Apple Account</small></div></div>›</div></div><div class="section-title">Settings</div><div class="list-card">${row("✈","Airplane Mode","Off","#f3a83b")}${row("◉","Wi-Fi","University Wi-Fi","#3987d8")}${row("ᛒ","Bluetooth","On","#3987d8")}${row("▰","Mobile Service","")}${row("通知","Notifications","")}${row("◐","Focus","")}${row("◉","General","")}${row("🔒","Privacy & Security","")}</div>`),
+ notes: appShell("Notes",`<div class="section-title">iCloud</div><div class="list-card"><div class="list-row"><div>Locker incident<small>3 days ago · Edited 8:42 PM</small></div>›</div><div class="list-row"><div>Shopping list<small>Yesterday</small></div>›</div></div>`),
+ findmy: appShell("Find My",`<div class="map-placeholder"><span class="map-pin">●</span></div><div class="section-title">People</div><div class="list-card"><div class="list-row"><div>Share My Location<small>Location sharing is on</small></div>›</div></div><p style="font-size:11px;color:#777">This is a fictional interface. No live location is available.</p>`),
+ photos: appShell("Library",`<div class="section-title">Recent Days</div><div class="list-card"><div class="list-row">No new photos</div></div>`),
+ calendar: appShell("Friday, 18 October",`<div class="section-title">Today</div><div class="list-card"><div class="list-row">No events scheduled</div></div>`),
+ weather: appShell("Weather",`<div style="text-align:center;padding:35px 0"><div style="font-size:55px">☁︎</div><div style="font-size:48px">14°</div><div>London · Cloudy</div><p style="color:#888;font-size:12px">Feels like 12°</p></div>`),
+ safari: appShell("Safari",`<div style="background:#e6e6eb;border-radius:12px;padding:12px;color:#777;font-size:12px">⌕ &nbsp; Search or enter website name</div><p style="text-align:center;color:#888;font-size:12px;margin-top:30px">Frequently Visited</p>`),
+ mail: appShell("Mail",`<div class="list-card"><div class="list-row">No New Messages</div></div>`),
+ camera: appShell("Camera",`<div style="height:300px;background:#17191d;border-radius:16px;display:grid;place-items:center;color:#aaa">Camera unavailable in this simulation</div>`),
+ clock: appShell("World Clock",`<div class="list-card"><div class="list-row">London <b>9:41</b></div></div>`),
+ maps: appShell("Maps",`<div class="map-placeholder"></div><p style="font-size:12px;color:#777">Search Maps</p>`),
+ phone: appShell("Favourites",`<div class="list-card"><div class="list-row">No Favourites</div></div>`),
+ music: appShell("Listen Now",`<div style="text-align:center;padding:45px 10px;color:#777">Your music library</div>`)
+ };
+ appview.innerHTML=screens[name]||appShell("App","");show(appview);
+ appview.querySelector("[data-back]")?.addEventListener("click",()=>show(home));
+}
+function row(icon,title,sub,color){return `<div class="list-row"><div class="row-main"><span class="row-icon" style="background:${color||"#777"}">${icon}</span><div>${title}${sub?`<small>${sub}</small>`:""}</div></div>›</div>`}
+const conversation = [
+ {from:"them",text:"You disappeared after class. Everything alright?"},
+ {from:"me",text:"yeah. just got back"},
+ {from:"them",text:"That's not an answer."},
+ {from:"me",text:"something weird happened at the locker a few days ago"},
+ {from:"them",text:"What happened?"},
+ {from:"me",text:"someone put my underwear in my locker. the one at uni."},
+ {from:"me",text:"it had blood on it too. actual period blood. i don't understand how someone even got it"},
+ {from:"them",text:"That's rather unpleasant, pretty. When did you find it?"},
+ {from:"me",text:"monday. i've been thinking about it since"},
+ {from:"them",text:"Did you tell anyone?"},
+ {from:"me",text:"no. what am i even supposed to say 😭"}
+];
+function renderMessages(){
+ appview.innerHTML=`<div class="app-top"><button class="back-button" data-back>‹</button><h2>Messages</h2><span style="width:35px"></span></div><div class="thread"><div class="thread-head"><div class="avatar">E</div><strong>Ezra</strong><small>iMessage</small></div><div id="message-scroll" class="message-scroll"></div><div id="choice-area" class="choice-area"></div></div>`;
+ show(appview);appview.querySelector("[data-back]").onclick=()=>show(home);
+ const scroll=$("message-scroll");
+ conversation.forEach((m,i)=>{if(i===0){const t=document.createElement("div");t.className="timestamp";t.textContent="iMessage · Today 8:37 PM";scroll.append(t)}addBubble(m.from,m.text)});
+ renderChoices();
+}
+function addBubble(from,text){const b=document.createElement("div");b.className="bubble "+from;b.textContent=text;$("message-scroll").append(b);$("message-scroll").scrollTop=$("message-scroll").scrollHeight}
+function renderChoices(){
+ const area=$("choice-area");
+ const sets=[
+  {prompt:"What does Melia say?",options:[
+   ["i genuinely don't know how someone got it. it was in my locker when i opened it.","Could be someone messing around. Did you leave the locker unlocked?"],
+   ["it's been three days and i still keep thinking about it. it's so fucking weird.","I can imagine. You shouldn't have to deal with that at university."],
+   ["i just want to know how they got it. that's the part i can't figure out.","We can think through who could access the locker, if you like."]
+  ]},
+  {prompt:"Ezra asks if she wants him to help. How does she respond?",options:[
+   ["can you? i don't even know where to start","Of course. We can start with the practical things."],
+   ["maybe. i don't want to make it into a whole thing","It already is a thing, pretty. You don't have to pretend otherwise."],
+   ["i was hoping you'd have some idea because you're annoyingly observant","Flattery. I'll see what I can find out."]
+  ]},
+  {prompt:"What does Melia want to check first?",options:[
+   ["whether the corridor has cctv","I'll ask what the university can actually provide. Don't expect much."],
+   ["who else can access those lockers","We can make a list of people with legitimate access."],
+   ["whether someone could've got into my room","That's worth checking. Have you noticed anything missing or out of place?"]
+  ]},
+  {prompt:"After the checks lead nowhere, Ezra suggests somewhere safer.",options:[
+   ["i don't know. staying at yours feels like a lot","You can say no. I thought it might make things easier for a few days."],
+   ["maybe for a few nights. i need to think","Then a few nights. No need to decide anything else now."],
+   ["would you actually mind if i stayed?","I wouldn't have offered if I minded, pretty."]
+  ]}
+ ];
+ if(step>=sets.length){area.innerHTML=`<p class="choice-prompt">Conversation paused · You can explore the phone.</p><button class="choice" id="notebook-link">Open investigation notebook</button>`;$("notebook-link").onclick=openNotebook;return}
+ const s=sets[step];area.innerHTML=`<p class="choice-prompt">${s.prompt}</p>`+s.options.map((o,i)=>`<button class="choice" data-choice="${i}">${o[0]}</button>`).join("");
+ area.querySelectorAll("[data-choice]").forEach(btn=>btn.onclick=()=>{const o=s.options[+btn.dataset.choice];addBubble("me",o[0]);setTimeout(()=>addBubble("them",o[1]),180);if(step===0)addClue(0);if(step===1)addClue(1);if(step===2){addClue(2);addClue(3)}if(step===3)addClue(4);step++;setTimeout(renderChoices,230)});
+}
+function addClue(i){if(!clues.includes(i)){clues.push(i);$("clue-count").textContent=`${clues.length} / 5 clues`;}}
+function openNotebook(){currentApp="notebook";appview.innerHTML=appShell("Investigation",`<div class="note-paper"><h3>Locker incident</h3><p>Notes from Melia's conversation with Ezra.</p>${clueData.map((c,i)=>`<div class="clue"><b>${clues.includes(i)?"✓":"○"} ${c[0]}</b><p>${clues.includes(i)?c[1]:"Not yet established."}</p></div>`).join("")}</div>`);show(appview);appview.querySelector("[data-back]").onclick=()=>show(home)}
+$("open-notes").onclick=openNotebook;
+$("reset").onclick=()=>{entered="";step=0;clues=[];$("clue-count").textContent="0 / 5 clues";show(lock)};
+$("status-time").textContent="9:41";
+document.addEventListener("keydown",e=>{if(!pass.classList.contains("hidden")){if(/^[0-9]$/.test(e.key)&&entered.length<6){entered+=e.key;updateDots();if(entered.length===6)setTimeout(checkPass,160)}if(e.key==="Backspace"){entered=entered.slice(0,-1);updateDots()}}});
+})();

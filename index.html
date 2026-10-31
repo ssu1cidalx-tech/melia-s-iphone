@@ -1,34 +1,95 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#101116">
-  <title>Melia's iPhone — Closet to the Bone</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08090d">
+<title>Melia's iPhone · Closet to the Bone</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="stage">
-    <header class="project-heading">
-      <p class="eyebrow">CLOSET TO THE BONE · INTERACTIVE FICTION</p>
-      <h1>Melia's iPhone</h1>
-      <p class="subheading">A private device. A few things that don't add up.</p>
-    </header>
-    <section class="phone" aria-label="Interactive iPhone simulation">
-      <div class="side-button"></div><div class="dynamic-island"></div>
-      <div class="screen">
-        <div class="statusbar"><span id="clock">9:41</span><div class="status-icons"><span>▮▮▮</span><span>◉</span><span class="battery">▰</span></div></div>
-        <div id="app" class="app-view"></div>
-        <div class="home-indicator" id="home-indicator" title="Return to Home"></div>
+<main class="workspace">
+  <header class="intro">
+    <div class="eyebrow">CLOSET TO THE BONE · INTERACTIVE FICTION</div>
+    <h1>Melia's iPhone</h1>
+    <p>A private device. Use the passcode to unlock it.</p>
+  </header>
+  <section class="device-wrap" aria-label="iPhone 17 simulation">
+    <div class="device">
+      <div class="hardware-button action"></div><div class="hardware-button volume"></div><div class="hardware-button side"></div>
+      <div class="screen" id="screen">
+        <div class="dynamic-island"><span class="island-camera"></span></div>
+        <div class="statusbar" id="statusbar">
+          <span id="status-time">9:41</span>
+          <div class="status-right"><span class="signal">▂▄▆</span><span class="wifi">◔</span><span class="battery"><i></i></span></div>
+        </div>
+        <div id="lockscreen" class="lockscreen">
+          <div class="lock-date">Friday, 18 October</div>
+          <div class="lock-time">9:41</div>
+          <div class="lock-widgets"><span>☁︎ &nbsp; 14°</span><span>London</span></div>
+          <div class="lock-notification">
+            <div class="notif-head"><span class="messages-mini">●</span><b>Messages</b><time>now</time></div>
+            <strong>Ezra</strong><p>Are you still coming for breakfast tomorrow?</p>
+          </div>
+          <div class="lock-bottom">
+            <button class="lock-control" aria-label="Flashlight">◉</button>
+            <button class="lock-control" aria-label="Camera">⌾</button>
+          </div>
+          <button id="unlock-hint" class="unlock-hint">Swipe up to unlock</button>
+          <div class="gesture-bar"></div>
+        </div>
+        <div id="passcode" class="passcode hidden">
+          <button id="pass-back" class="pass-back">‹</button>
+          <div class="passcode-title">Enter Passcode</div>
+          <div class="passcode-subtitle">Enter Passcode to unlock iPhone</div>
+          <div id="dots" class="passcode-dots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div id="keypad" class="keypad">
+            <button data-digit="1"><b>1</b></button><button data-digit="2"><b>2</b><small>ABC</small></button><button data-digit="3"><b>3</b><small>DEF</small></button>
+            <button data-digit="4"><b>4</b><small>GHI</small></button><button data-digit="5"><b>5</b><small>JKL</small></button><button data-digit="6"><b>6</b><small>MNO</small></button>
+            <button data-digit="7"><b>7</b><small>PQRS</small></button><button data-digit="8"><b>8</b><small>TUV</small></button><button data-digit="9"><b>9</b><small>WXYZ</small></button>
+            <span></span><button data-digit="0"><b>0</b></button><button id="delete-digit" class="delete-digit">⌫</button>
+          </div>
+          <div id="pass-error" class="pass-error" aria-live="polite"></div>
+          <div class="gesture-bar"></div>
+        </div>
+        <div id="home" class="home hidden">
+          <div class="home-date">Friday, 18 October</div>
+          <div class="home-widget">
+            <div><small>London</small><strong>14°</strong><span>Cloudy</span></div>
+            <div class="weather-icon">☁︎</div>
+          </div>
+          <div class="app-grid">
+            <button class="app-icon" data-app="messages"><span class="icon-art messages">•••</span><label>Messages</label><i class="unread-dot"></i></button>
+            <button class="app-icon" data-app="calendar"><span class="icon-art calendar"><b>FRI</b><strong>18</strong></span><label>Calendar</label></button>
+            <button class="app-icon" data-app="photos"><span class="icon-art photos">✿</span><label>Photos</label></button>
+            <button class="app-icon" data-app="camera"><span class="icon-art camera">◉</span><label>Camera</label></button>
+            <button class="app-icon" data-app="maps"><span class="icon-art maps">⌖</span><label>Maps</label></button>
+            <button class="app-icon" data-app="weather"><span class="icon-art weather">☁︎</span><label>Weather</label></button>
+            <button class="app-icon" data-app="notes"><span class="icon-art notes">≡</span><label>Notes</label></button>
+            <button class="app-icon" data-app="findmy"><span class="icon-art findmy">◎</span><label>Find My</label></button>
+            <button class="app-icon" data-app="settings"><span class="icon-art settings">⚙</span><label>Settings</label></button>
+            <button class="app-icon" data-app="safari"><span class="icon-art safari">◉</span><label>Safari</label></button>
+            <button class="app-icon" data-app="mail"><span class="icon-art mail">✉</span><label>Mail</label></button>
+            <button class="app-icon" data-app="clock"><span class="icon-art clock">◷</span><label>Clock</label></button>
+          </div>
+          <div class="dock">
+            <button class="app-icon" data-app="phone"><span class="icon-art phone">☎</span><label>Phone</label></button>
+            <button class="app-icon" data-app="safari"><span class="icon-art safari">◉</span><label>Safari</label></button>
+            <button class="app-icon" data-app="messages"><span class="icon-art messages">•••</span><label>Messages</label><i class="unread-dot"></i></button>
+            <button class="app-icon" data-app="music"><span class="icon-art music">♫</span><label>Music</label></button>
+          </div>
+          <div class="gesture-bar"></div>
+        </div>
+        <div id="appview" class="appview hidden"></div>
       </div>
-    </section>
-    <aside class="reader-tools">
-      <div><span class="tool-label">INVESTIGATION NOTES</span><strong id="clue-count">0 / 5 clues found</strong></div>
-      <button id="notes-button" class="tool-button">Notebook</button>
-      <button id="reset-button" class="reset-button">Reset</button>
-    </aside>
-    <p class="disclaimer">Fictional interface. No real location, messages or device data are accessed.</p>
-  </main>
-  <script src="app.js"></script>
+    </div>
+  </section>
+  <aside class="reader-panel">
+    <div><span class="reader-label">INVESTIGATION NOTEBOOK</span><strong id="clue-count">0 / 5 clues</strong></div>
+    <button id="open-notes">Open notebook</button><button id="reset">Restart phone</button>
+  </aside>
+  <p class="disclaimer">Fictional device simulation. It does not access real messages, location, camera, microphone or device data.</p>
+</main>
+<script src="app.js"></script>
 </body>
 </html>
