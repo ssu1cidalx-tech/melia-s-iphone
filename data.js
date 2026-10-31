@@ -173,7 +173,7 @@ const D = {
       items: [
         {
           name: "Coffee after class",
-          src: "images/coffee21.jpg",
+          src: "asset/coffee21.jpg",
           date: "Today",
           loc: "London"
         },
