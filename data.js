@@ -177,6 +177,12 @@ const D = {
           date: "Today",
           loc: "London"
         },
+          {
+          name: "Breakfast",
+          src: "asset/breakfast.jpg",
+          date: "Yesterday",
+          loc: "Belgarvia"
+        },
         { name: "Library table", src: "", date: "Yesterday", loc: "London" },
         { name: "Best friend laughing", src: "", date: "Yesterday", loc: "Campus" },
         { name: "Campus building", src: "", date: "Monday", loc: "UCL" },
