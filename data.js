@@ -71,15 +71,6 @@ const D = {
        status:"Read 09:15"  (optional; shown under the newest outgoing message, default "Delivered")
      chat fields:  id, name, avatar:"BF", img:"…", sms:true (green bubbles instead of blue)           */
   chats: [
-    { id: "friend", name: "Best friend", avatar: "BF", messages: [
-      { f: "in", t: "Yesterday 18:42", s: "are you still on campus?" },
-      { f: "out", t: "Yesterday 18:43", s: "yeah, just leaving the library" },
-      { f: "in", t: "Yesterday 18:44", s: "wait for me i'll walk with you" },
-      { f: "out", t: "Yesterday 18:45", s: "okay. i'm getting coffee first" },
-      { f: "in", t: "Today 09:12", s: "send me the photos when you get a chance" },
-      { f: "out", t: "Today 09:14", s: "i will 😭" },
-      { f: "in", t: "Today 09:16", voice: 1, duration: "0:18", transcript: "" }
-    ] },
     { id: "ezra", name: "Ezra", avatar: "E", messages: [
       { f: "in", t: "Yesterday 21:08", s: "You home?" },
       { f: "out", t: "Yesterday 21:10", s: "yeah. finally" },
@@ -95,10 +86,10 @@ const D = {
       { f: "in", t: "Today 10:24", s: "What happened?" },
       { f: "out", t: "Today 10:26", s: "someone put my underwear in my locker. the one at uni." },
       { f: "out", t: "Today 10:26", s: "it had blood on it too. actual period blood. i don't understand how someone even got it" },
-      { f: "in", t: "Today 10:28", s: "That's rather unpleasant, pretty. When did you find it?" },
+      { f: "in", t: "Today 10:28", s: "That's rather unpleasant. When did you find it?" },
       { f: "out", t: "Today 10:29", s: "monday. i've been thinking about it since" },
       { f: "in", t: "Today 10:30", s: "Did you tell anyone?" },
-      { f: "out", t: "Today 10:31", s: "no. what am i even supposed to say 😭", status: "Read 10:31" }
+      { f: "out", t: "Today 10:31", s: "no. what am i even supposed to say ", status: "Read 10:31" }
     ] },
     { id: "group", name: "seminar people", avatar: "4", messages: [
       { f: "in", t: "Monday 14:20", s: "does anyone have the reading list?" },
@@ -124,7 +115,7 @@ const D = {
       ] },
       { prompt: "Ezra asks if she wants him to help. How does she respond?", t: ["10:34", "10:35"], clues: [1], options: [
         { me: "can you? i don't even know where to start", them: "Of course. We can start with the practical things." },
-        { me: "maybe. i don't want to make it into a whole thing", them: "It already is a thing, pretty. You don't have to pretend otherwise." },
+        { me: "maybe. i don't want to make it into a whole thing", them: "It already is a thing, Melia. You don't have to pretend otherwise." },
         { me: "i was hoping you'd have some idea because you're annoyingly observant", them: "Flattery. I'll see what I can find out." }
       ] },
       { prompt: "What does Melia want to check first?", t: ["10:36", "10:37"], clues: [2, 3], options: [
@@ -151,16 +142,16 @@ const D = {
 
   /* ---- PHONE / FACETIME ---- kind: "Mobile" | "FaceTime" | "FaceTime Audio"; missed:true shows red */
   calls: [
-    { name: "Best friend", kind: "FaceTime Audio", when: "Today, 09:12", duration: "18 min" },
-    { name: "Ezra", kind: "FaceTime", when: "Yesterday, 22:16", duration: "32 min" },
-    { name: "Best friend", kind: "Mobile", when: "Yesterday, 17:48", duration: "6 min" },
+    { name: "Ezra", kind: "FaceTime", when: "Yesterday, 22:16", duration: "1 hour 20min" },
+    { name: "Rania", kind: "Mobile", when: "Yesterday, 17:48", duration: "6 min" },
     { name: "University reception", kind: "Mobile", when: "Monday, 11:04", duration: "2 min" },
-    { name: "Best friend", kind: "FaceTime Audio", when: "Sunday, 20:32", duration: "47 min" }
+    { name: "James Roomate", kind: "FaceTime Audio", when: "Sunday, 20:32", duration: "5 min" }
   ],
 
   /* ---- CONTACTS ---- add  phone:"…"  email:"…"  fav:true  img:"…"  when you have them */
   contacts: [
-    { name: "Best friend", sub: "Mobile · saved contact" },
+    { name: "Rania", sub: "Mobile · saved contact" },
+    { name: "James Roomate", sub: "Mobile · saved contact" },
     { name: "Ezra Mikael", sub: "Mobile · saved contact" },
     { name: "University reception", sub: "Work · saved contact" }
   ],
