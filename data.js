@@ -172,17 +172,26 @@ const D = {
           name: "Breakfast",
           src: "asset/breakfast.jpg",
           date: "Yesterday",
-          loc: "Belgarvia"
+          loc: "Belgravia"
         },
-        { name: "Best friend laughing", src: "", date: "Yesterday", loc: "Campus" },
-        { name: "Campus building", src: "", date: "Monday", loc: "UCL" },
-        { name: "Dinner", src: "", date: "Sunday", loc: "London" },
-        { name: "Screenshot", src: "", date: "Sunday", loc: "" },
-        { name: "Train window", src: "", date: "Saturday", loc: "" },
-        { name: "Rain on pavement", src: "", date: "Friday", loc: "London" },
-        { name: "Group photo", src: "", date: "Monday", loc: "Campus" }
-      ]
-    },
+        {
+          name: "bags",
+          src: "asset/bags.jpg",
+          date: "Lat week",
+          loc: "Belgravia"
+        },
+           {
+          name: "bags",
+          src: "asset/bags.jpg",
+          date: "Lat week",
+          loc: "Belgravia"
+        },
+         {
+          name: "Ezra",
+          src: "asset/111.jpg",
+          date: "Lat week",
+          loc: "Belgravia"
+        },
     { 
       name: "People", 
       count: 34, 
