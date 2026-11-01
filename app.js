@@ -86,7 +86,7 @@ function buildHome() {
 function openPass() { S.pass = ""; paintDots(); const err = $("#error"); if (err) err.textContent = ""; screen("passcode"); }
 function paintDots() { $$("#dots i").forEach((x, i) => x.classList.toggle("filled", i < S.pass.length)); }
 function digit(k) {
-  if (k === "del") { S.pass = S.pass.slice(0, -1); paintDots(); return; }
+  if (k === "del" || k === "⌫") { S.pass = S.pass.slice(0, -1); paintDots(); return; }
   if (S.pass.length >= 6) return;
   S.pass += k; paintDots();
   if (S.pass.length === 6) {
@@ -683,16 +683,7 @@ function bindEvents() {
   const lockBtn = $("#lockBtn"); if (lockBtn) lockBtn.addEventListener("click", lockPhone);
   const unlockBtn = $("#unlockBtn"); if (unlockBtn) unlockBtn.addEventListener("click", openPass);
 
-  const passcodePad = $("#dots")?.parentElement;
-  if (passcodePad) {
-    passcodePad.addEventListener("click", e => {
-      const b = e.target.closest("button");
-      if (b) {
-        const k = b.dataset.k || b.textContent.trim();
-        if (k) digit(k);
-      }
-    });
-  }
+  // Removed the duplicate passcodePad event listener block entirely to fix the triple-input bug!
 }
 
 document.addEventListener("DOMContentLoaded", () => {
