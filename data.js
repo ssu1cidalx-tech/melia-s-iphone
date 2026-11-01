@@ -5,7 +5,7 @@
    (app.js) never contains story text, so you can change dialogue, dates,
    images and clues here without touching the engine.
 
-   All entries below are the placeholders from the original prototype.
+   All entries bew are the placeholders from the original prototype.
    Nothing here is story canon unless you decide it is.
 
    IMAGES / AUDIO (all optional, always relative paths, e.g. "assets/x.jpg"):
@@ -20,7 +20,7 @@
    ========================================================================== */
 
 const CONFIG = {
-  passcode: "280108",
+  passcode: "280108",lo
   owner: "Melia Nadya",
   date: "Thursday, 22 October",          // shown on Lock Screen and Home Screen
   dayNumber: "22",                       // number on the Calendar icon
@@ -186,15 +186,18 @@ const D = {
           date: "Last week",
           loc: "Belgravia"
         },
-         {
+      pt
+        {
           name: "Ezra",
           src: "asset/111.jpg",
           date: "Last week",
           loc: "Belgravia"
-        },
-    { 
+        }
+      ]
+    },
+    {
       name: "People", 
-      count: 34, 
+      count: 34,
       items: [
         { name: "Best friend", src: "", date: "", loc: "" }, 
         { name: "Melia & best friend", src: "", date: "", loc: "" }, 
