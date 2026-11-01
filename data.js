@@ -31,7 +31,7 @@ const CONFIG = {
   mapImage: "",
   libraryAlbum: "Recents",               // the Photos album that is shown as the Library
   notifications: [
-    { app: "Messages", title: "Best friend", time: "09:16", body: "Audio Message", open: { app: "messages", chat: "friend" } },
+    { app: "Messages", title: "Ezra Mikael", time: "09:16", body: "Audio Message", open: { app: "messages", chat: "Ezra" } },
     { app: "Calendar", title: "Reminder", time: "08:41", body: "Seminar reading — check the article", open: { app: "calendar" } }
   ]
 };
@@ -212,13 +212,6 @@ const D = {
           date: "Last week",
           loc: "Library"
         },
-        {
-          name: "Campus walk video",
-          video: "asset/hand.gif",
-          duration: "0:15",
-          date: "Yesterday",
-          loc: "London"
-        }
       ]
     },
     { 
