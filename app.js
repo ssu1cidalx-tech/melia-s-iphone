@@ -1,7 +1,6 @@
 "use strict";
 /* ==========================================================================
    MELIA'S iPHONE — interface engine
-   Story content lives in data.js. This file should rarely need editing.
    ========================================================================== */
 
 /* ---------- helpers ---------- */
@@ -24,12 +23,18 @@ const navOf = () => S.nav[S.current];
 /* ---------- screens ---------- */
 function screen(id) {
   S.screen = id;
-  ["lock", "passcode", "home", "app", "search"].forEach(x => $("#" + x).classList.toggle("hidden", x !== id));
-  $("#hardware").classList.toggle("on-light", ["passcode", "app", "search"].includes(id));
+  ["lock", "passcode", "home", "app", "search"].forEach(x => {
+    const el = $("#" + x);
+    if (el) el.classList.toggle("hidden", x !== id);
+  });
+  const hw = $("#hardware");
+  if (hw) hw.classList.toggle("on-light", ["passcode", "app", "search"].includes(id));
 }
 function toast(s) {
   const old = $(".toast"); if (old) old.remove();
-  const d = document.createElement("div"); d.className = "toast"; d.textContent = s; $("#screen").append(d);
+  const d = document.createElement("div"); d.className = "toast"; d.textContent = s; 
+  const scr = $("#screen") || document.body;
+  scr.append(d);
   clearTimeout(S.toastTimer); S.toastTimer = setTimeout(() => d.remove(), 1700);
 }
 
@@ -39,36 +44,46 @@ function appIcon(a) {
   return `<button class="app-icon" data-app="${a.id}"><span class="art" style="background:${a.c};color:${a.fg || "white"}">${glyph}</span><span>${esc(a.n)}</span></button>`;
 }
 function buildLock() {
-  $("#lockDate").textContent = CONFIG.date;
-  $("#lockTime").textContent = clockText();
-  $("#clock").textContent = clockText();
+  const ld = $("#lockDate"), lt = $("#lockTime"), cl = $("#clock");
+  if (ld) ld.textContent = CONFIG.date;
+  if (lt) lt.textContent = clockText();
+  if (cl) cl.textContent = clockText();
   const ev = D.calendar[0], w = CONFIG.weather;
-  $("#lockWidgets").innerHTML =
-    `<div><small>WEATHER</small><b>${esc(w.temp)}</b><span>${esc(w.cond)}</span></div>` +
-    `<div><small>CALENDAR</small><b>${ev ? esc(ev.title) : "Today"}</b><span>${ev ? esc(ev.day.split("·").pop().trim()) : "Nothing scheduled"}</span></div>`;
-  $("#notifications").innerHTML = CONFIG.notifications.map((n, i) =>
-    `<div class="notification" data-notif="${i}"><small>${esc(n.app)} · ${esc(n.title)} · ${esc(n.time)}</small><p>${esc(n.body)}</p></div>`).join("");
+  const lw = $("#lockWidgets");
+  if (lw) {
+    lw.innerHTML =
+      `<div><small>WEATHER</small><b>${esc(w.temp)}</b><span>${esc(w.cond)}</span></div>` +
+      `<div><small>CALENDAR</small><b>${ev ? esc(ev.title) : "Today"}</b><span>${ev ? esc(ev.day.split("·").pop().trim()) : "Nothing scheduled"}</span></div>`;
+  }
+  const notifs = $("#notifications");
+  if (notifs) {
+    notifs.innerHTML = CONFIG.notifications.map((n, i) =>
+      `<div class="notification" data-notif="${i}"><small>${esc(n.app)} · ${esc(n.title)} · ${esc(n.time)}</small><p>${esc(n.body)}</p></div>`).join("");
+  }
   const wp = CONFIG.wallpaper;
-  if (wp.lock) { $("#lock").classList.add("wp"); $("#lock").style.backgroundImage = `url("${wp.lock}")`; }
-  if (wp.home) { $("#home").classList.add("wp"); $("#home").style.backgroundImage = `url("${wp.home}")`; }
+  const lockEl = $("#lock"), homeEl = $("#home");
+  if (wp.lock && lockEl) { lockEl.classList.add("wp"); lockEl.style.backgroundImage = `url("${wp.lock}")`; }
+  if (wp.home && homeEl) { homeEl.classList.add("wp"); homeEl.style.backgroundImage = `url("${wp.home}")`; }
 }
 function buildHome() {
-  $("#homeDate").textContent = CONFIG.date;
+  const hd = $("#homeDate"); if (hd) hd.textContent = CONFIG.date;
   const w = CONFIG.weather, ev = D.calendar[0];
   const widgets = `<div class="widgets"><button data-app="weather"><b>☁ ${esc(w.temp)}</b><small>${esc(w.cond)} · ${esc(w.place)}</small></button>` +
     `<button data-app="calendar"><small>UP NEXT</small><b>${ev ? esc(ev.title) : "No events"}</b><small>${ev ? esc(ev.day + " · " + ev.place) : "Tap to open Calendar"}</small></button></div>`;
   const list = APPS.filter(a => !a.dock), pages = [];
   for (let i = 0; i < list.length; i += 16) pages.push(list.slice(i, i + 16));
-  $("#pages").innerHTML = pages.map((p, i) =>
-    `<div class="page ${i === 0 ? "first" : ""}">${i === 0 ? widgets : ""}<div class="apps">${p.map(appIcon).join("")}</div></div>`).join("");
-  $("#dock").innerHTML = APPS.filter(a => a.dock).map(appIcon).join("");
-  $("#pageDots").innerHTML = pages.length > 1 ? pages.map((_, i) => `<i data-page="${i}" class="${i === 0 ? "on" : ""}"></i>`).join("") : "";
-  $("#pages").addEventListener("scroll", () => {
-    const pg = $("#pages"), i = Math.round(pg.scrollLeft / pg.clientWidth);
-    $$("#pageDots i").forEach((d, k) => d.classList.toggle("on", k === i));
-  });
+  const pEl = $("#pages"), dEl = $("#dock"), pdEl = $("#pageDots");
+  if (pEl) pEl.innerHTML = pages.map((p, i) => `<div class="page ${i === 0 ? "first" : ""}">${i === 0 ? widgets : ""}<div class="apps">${p.map(appIcon).join("")}</div></div>`).join("");
+  if (dEl) dEl.innerHTML = APPS.filter(a => a.dock).map(appIcon).join("");
+  if (pdEl) pdEl.innerHTML = pages.length > 1 ? pages.map((_, i) => `<i data-page="${i}" class="${i === 0 ? "on" : ""}"></i>`).join("") : "";
+  if (pEl) {
+    pEl.addEventListener("scroll", () => {
+      const i = Math.round(pEl.scrollLeft / pEl.clientWidth);
+      $$("#pageDots i").forEach((d, k) => d.classList.toggle("on", k === i));
+    });
+  }
 }
-function openPass() { S.pass = ""; paintDots(); $("#error").textContent = ""; screen("passcode"); }
+function openPass() { S.pass = ""; paintDots(); const err = $("#error"); if (err) err.textContent = ""; screen("passcode"); }
 function paintDots() { $$("#dots i").forEach((x, i) => x.classList.toggle("filled", i < S.pass.length)); }
 function digit(k) {
   if (k === "del") { S.pass = S.pass.slice(0, -1); paintDots(); return; }
@@ -76,7 +91,7 @@ function digit(k) {
   S.pass += k; paintDots();
   if (S.pass.length === 6) {
     if (S.pass === CONFIG.passcode) setTimeout(unlockPhone, 120);
-    else { $("#error").textContent = "Incorrect Passcode"; setTimeout(() => { S.pass = ""; paintDots(); $("#error").textContent = ""; }, 650); }
+    else { const err = $("#error"); if (err) err.textContent = "Incorrect Passcode"; setTimeout(() => { S.pass = ""; paintDots(); if (err) err.textContent = ""; }, 650); }
   }
 }
 function unlockPhone() {
@@ -87,6 +102,7 @@ function unlockPhone() {
 function lockPhone() { stopVoice(); S.pass = ""; S.pending = null; screen("lock"); }
 function goHome() { saveScroll(); stopVoice(); screen("home"); }
 function homebar() { if (S.screen === "lock") openPass(); else if (S.screen === "app" || S.screen === "search") goHome(); }
+function openTarget(t) { openApp(typeof t === "string" ? t : t.app || "messages"); }
 
 /* ---------- row helper ---------- */
 function row(icon, title, sub = "", act = "", arg = "", meta = "", o = {}) {
@@ -120,24 +136,26 @@ function openApp(id) {
   if (!S.nav[id]) S.nav[id] = { stack: (ROOTS[id] || (() => [genericView(id)]))(), tab: DEFAULT_TAB[id] || null };
   S.current = id; screen("app"); paint();
 }
-function resetApp(id) { delete S.nav[id]; }
 function scrollEl() { const n = navOf(); if (!n) return null; return n.stack.at(-1).fixed ? $(".thread") : $("#content"); }
 function saveScroll() { const n = navOf(), el = scrollEl(); if (n && el) n.stack.at(-1).scroll = el.scrollTop; }
 function push(v) { saveScroll(); navOf().stack.push(v); paint(); }
-function replaceTop(v) { const n = navOf(); n.stack[n.stack.length - 1] = v; paint(); }
 function back() { const n = navOf(); if (S.screen === "app" && n && n.stack.length > 1) { n.stack.pop(); paint(); } }
 function paint() {
   stopVoice();
   const n = navOf(), v = n.stack.at(-1), root = n.stack.length === 1, app = APPS.find(a => a.id === S.current);
-  $("#back").style.visibility = root ? "hidden" : "visible";
-  if (!root) $("#backLabel").textContent = n.stack.at(-2).title || app.n;
-  $("#title").textContent = root ? "" : v.title;
+  const backBtn = $("#back"), backLbl = $("#backLabel"), titleEl = $("#title");
+  if (backBtn) backBtn.style.visibility = root ? "hidden" : "visible";
+  if (backLbl) backLbl.textContent = root ? "" : (n.stack.at(-2).title || (app ? app.n : "Back"));
+  if (titleEl) titleEl.textContent = root ? "" : v.title;
   const defs = TABS[S.current], showTabs = !!defs && root, c = $("#content");
-  c.className = "content" + (v.fixed ? " fixed" : "") + (showTabs ? "" : " no-tabs");
-  c.innerHTML = v.render(v, n);
-  $("#tabs").innerHTML = showTabs ? defs.map(t => `<button class="tab ${t[0] === n.tab ? "active" : ""}" data-tab="${t[0]}"><b>${t[1]}</b>${t[0]}</button>`).join("") : "";
-  const sc = v.fixed ? $(".thread") : c;
-  if (sc) sc.scrollTop = v.scroll != null ? v.scroll : (v.fixed ? sc.scrollHeight : 0);
+  if (c) {
+    c.className = "content" + (v.fixed ? " fixed" : "") + (showTabs ? "" : " no-tabs");
+    c.innerHTML = v.render(v, n);
+    const sc = v.fixed ? $(".thread") : c;
+    if (sc) sc.scrollTop = v.scroll != null ? v.scroll : (v.fixed ? sc.scrollHeight : 0);
+  }
+  const tabsEl = $("#tabs");
+  if (tabsEl) tabsEl.innerHTML = showTabs ? defs.map(t => `<button class="tab ${t[0] === n.tab ? "active" : ""}" data-tab="${t[0]}"><b>${t[1]}</b>${t[0]}</button>`).join("") : "";
   paintMini();
   if (v.mount) v.mount(v);
 }
@@ -163,7 +181,7 @@ function messagesView() {
       const hits = D.chats.map(c => { const m = q ? c.messages.find(m => has(q, m.s, m.transcript)) : null; return has(q, c.name) || m ? { c, m } : null; }).filter(Boolean);
       return hits.length ? card(hits.map(({ c, m }) => {
         const l = c.messages.at(-1), pv = q && m && !has(q, c.name) ? m.s : previewOf(l);
-        return row(avatar(c.name, { img: c.img, txt: c.avatar }), c.name, pv, "chat", c.id, listStamp(l.t));
+        return row(avatar(c.name, { img: c.img, txt: c.avatar }), c.name, pv, "chat", c.id, listStamp(l ? l.t : ""));
       })) : empty("No Results", "Try a different search.");
     },
     render: v => `<h2 class="heading">Messages</h2>${sbar(v)}${listBox(v)}${note("Seed dialogue — replace in data.js.")}`
@@ -178,7 +196,7 @@ function bubble(m, cont, c, i) {
   let html = "";
   if (m.img || m.imgLabel || m.video) {
     const inner = m.img ? `<img src="${esc(m.img)}" alt="">` : esc(m.imgLabel || (m.video ? "Video" : "Photo"));
-    html += `<div class="${cls} media"><div class="attach" data-do="attach" data-a="${esc(m.img || "")}|${esc(m.imgLabel || "Photo")}">${inner}${m.video ? `<span class="play">▶</span><span class="dur">${esc(m.duration || "")}</span>` : ""}</div></div>`;
+    html += `<div class="${cls} media"><div class="attach" data-do="attach" data-a="${esc(m.img || m.video || "")}|${esc(m.imgLabel || (m.video ? "Video" : "Photo"))}">${inner}${m.video ? `<span class="play">▶</span><span class="dur">${esc(m.duration || "")}</span>` : ""}</div></div>`;
     if (m.s) html += `<div class="${cls} cont">${esc(m.s)}</div>`;
     return html;
   }
@@ -217,7 +235,8 @@ function sendMessage() {
   if (!v || !v.chatId || !inp || !inp.value.trim()) return;
   const c = chatById(v.chatId);
   c.messages.push({ f: "out", t: "Today " + CONFIG.time, s: inp.value.trim(), status: "Delivered" });
-  const th = $(".thread"); th.innerHTML = threadInner(c); th.scrollTop = th.scrollHeight;
+  const th = $(".thread"); 
+  if (th) { th.innerHTML = threadInner(c); th.scrollTop = th.scrollHeight; }
   inp.value = ""; inp.focus();
 }
 
@@ -233,7 +252,7 @@ function notebookView() {
   };
 }
 
-/* voice playback (real audio when `src` is given, otherwise a timed simulation) */
+/* ---------- Voice playback ---------- */
 function secs(d) { const p = String(d || "0:10").split(":").map(Number); return p.length === 2 ? p[0] * 60 + p[1] : (p[0] || 10); }
 function voiceInfo(id) {
   const [k, a, b] = id.split("|");
@@ -324,7 +343,7 @@ function contactView(name) {
 /* ---------- Photos ---------- */
 const albums = () => D.photos.map(a => ({ ...a, items: a.items.map(x => typeof x === "string" ? { name: x } : x) }));
 function cell(it, i, j) {
-  return `<div class="photo ${it.src ? "" : "ph"}" data-do="photo" data-a="${i}|${j}">${it.src ? `<img src="${esc(it.src)}" alt="${esc(it.name)}" loading="lazy">` : ""}${it.type === "video" ? `<b class="vid">${esc(it.duration || "▶")}</b>` : ""}${it.src ? "" : `<span>${esc(it.name)}</span>`}</div>`;
+  return `<div class="photo ${it.src ? "" : "ph"}" data-do="photo" data-a="${i}|${j}">${it.src ? `<img src="${esc(it.src)}" alt="${esc(it.name)}" loading="lazy">` : ""}${it.type === "video" || it.video ? `<b class="vid">${esc(it.duration || "▶")}</b>` : ""}${it.src ? "" : `<span>${esc(it.name)}</span>`}</div>`;
 }
 function photosView() {
   return {
@@ -340,8 +359,8 @@ function photosView() {
         return `<h2 class="heading">Collections</h2><div class="eyebrow">Albums</div><div class="album-grid">${all.map((a, i) => { const f = a.cover || (a.items[0] && a.items[0].src); return `<div class="tile" data-do="album" data-a="${i}"><div class="cover">${f ? `<img src="${esc(f)}" alt="">` : "IMAGE<br>PLACEHOLDER"}</div><b>${esc(a.name)}</b><small>${a.count ?? a.items.length}</small></div>`; }).join("")}</div>`;
       }
       if (n.tab === "Search") return `<h2 class="heading">Search</h2>${sbar(v, "Photos, People, Places…")}${listBox(v)}`;
-      const li = Math.max(0, all.findIndex(a => a.name === CONFIG.libraryAlbum)), lib = all[li];
-      return `<h2 class="heading">Library</h2><div class="photo-grid">${lib.items.map((it, j) => cell(it, li, j)).join("")}</div><p class="muted center">${lib.count ?? lib.items.length} Items</p>${note("Photos are placeholders. Add src paths in data.js.")}`;
+      const li = Math.max(0, all.findIndex(a => a.name === CONFIG.libraryAlbum)), lib = all[li] || all[0];
+      return `<h2 class="heading">Library</h2><div class="photo-grid">${lib ? lib.items.map((it, j) => cell(it, li, j)).join("") : ""}</div><p class="muted center">${lib ? (lib.count ?? lib.items.length) : 0} Items</p>${note("Photos are placeholders. Add src paths in data.js.")}`;
     }
   };
 }
@@ -353,11 +372,11 @@ function photoView(i, j) {
   const a = albums()[i], it = a.items[j];
   return {
     title: it.date || "Photo", isPhoto: true,
-    render: () => `<div class="viewer">${it.src ? `<img src="${esc(it.src)}" alt="${esc(it.name)}">` : "IMAGE PLACEHOLDER"}<button class="nav l" data-do="photo" data-a="${i}|${j - 1}" ${j < 1 ? "disabled" : ""}>‹</button><button class="nav r" data-do="photo" data-a="${i}|${j + 1}" ${j >= a.items.length - 1 ? "disabled" : ""}>›</button></div>${kv([["Caption", it.name], ["Date", it.date], ["Location", it.loc], ["Album", a.name]])}`
+    render: () => `<div class="viewer">${it.src ? `<img src="${esc(it.src)}" alt="${esc(it.name)}">` : (it.video ? `<video src="${esc(it.video)}" controls autoplay style="max-width:100%;max-height:100%"></video>` : "IMAGE PLACEHOLDER")}<button class="nav l" data-do="photo" data-a="${i}|${j - 1}" ${j < 1 ? "disabled" : ""}>‹</button><button class="nav r" data-do="photo" data-a="${i}|${j + 1}" ${j >= a.items.length - 1 ? "disabled" : ""}>›</button></div>${kv([["Caption", it.name], ["Date", it.date], ["Location", it.loc], ["Album", a.name]])}`
   };
 }
 
-/* ---------- Music (iOS 26 tabs: Home, New, Radio, Library, Search) ---------- */
+/* ---------- Music ---------- */
 const allTracks = () => { const seen = new Set(), out = []; D.playlists.forEach((p, pi) => p.tracks.forEach((t, ti) => { const k = t[0] + "|" + t[1]; if (!seen.has(k)) { seen.add(k); out.push({ t, pi, ti }); } })); return out; };
 const art = (src, label = "ART") => src ? `<img src="${esc(src)}" alt="">` : label;
 function trackRow(t, pi, ti) {
@@ -396,6 +415,7 @@ function playlistView(i) {
 }
 function paintMini() {
   const m = $("#mini"), p = S.playing, show = S.current === "music" && p && S.screen === "app";
+  if (!m) return;
   m.classList.toggle("hidden", !show);
   if (show) m.innerHTML = `<div class="cover">${art((D.playlists[p.pi] || {}).art)}</div><div class="t"><b>${esc(p.t[0])}</b><small>${esc(p.t[1])}</small></div><button data-do="miniToggle" aria-label="Play or pause">${p.on ? "❚❚" : "▶"}</button>`;
 }
@@ -420,7 +440,7 @@ function emailView(i) {
 function calendarView() { return { title: "Calendar", render: () => `<h2 class="heading">Calendar</h2><div class="eyebrow">Upcoming</div>${D.calendar.length ? card(D.calendar.map((e, i) => row("▦", e.title, e.place, "event", String(i), e.day))) : empty("No Events")}` }; }
 function eventView(i) { const e = D.calendar[i]; return { title: "Event", render: () => `<div class="note"><b class="note-title">${esc(e.title)}</b></div><div style="height:10px"></div>${kv([["When", e.day], ["Location", e.place], ["Calendar", e.calendar || ""]])}` }; }
 
-/* ---------- Notes (folders → list → note) ---------- */
+/* ---------- Notes ---------- */
 function foldersView() {
   return { title: "Folders", render: () => { const fs = [...new Set(D.notes.map(n => n.folder))]; return `<h2 class="heading">Folders</h2><div class="eyebrow">iCloud</div>${card([row("▤", "All Notes", "", "notesAll", "", String(D.notes.length)), ...fs.map(f => row("📁", f, "", "folder", f, String(D.notes.filter(n => n.folder === f).length)))])}`; } };
 }
@@ -452,239 +472,233 @@ const hist = () => D.safari.map(h => typeof h === "string" ? { title: h } : h);
 function safariView() {
   return {
     title: "Safari", q: "",
-    search: q => { const l = hist().map((h, i) => ({ h, i })).filter(x => has(q, x.h.title, x.h.url)); return (l.length ? `<div class="eyebrow">History</div>${card(l.map(({ h, i }) => row(h.kind === "search" ? "⌕" : "◉", h.title, h.url || h.when || "", "site", String(i))))}` : empty("No Results")) + (!q && D.readingList && D.readingList.length ? `<div class="eyebrow">Reading List</div>${card(D.readingList.map((r, i) => row("▤", r.title, r.sub, "reading", String(i))))}` : ""); },
-    render: v => `<h2 class="heading">Safari</h2>${sbar(v, "Search or enter website")}${listBox(v)}`
+    search: q => { const l = hist().map((h, i) => ({ h, i })).filter(x => has(q, x.h.title, x.h.url)); return l.length ? card(l.map(({ h, i }) => row("🌐", h.title, h.url || "history", "safariItem", String(i), "", { noChev: true }))) : empty("No Results"); },
+    render: v => `<h2 class="heading">Safari</h2>${sbar(v, "Search or website name")}${listBox(v)}${note("History items are placeholders — set D.safari in data.js.")}`
   };
 }
-function pageView(title, sub) { return { title: "Safari", render: () => `<div class="note"><b class="note-title">${esc(title)}</b>${esc(sub || "")}</div><p class="muted center">Web pages aren't loaded in this simulation.</p>` }; }
 
 /* ---------- Find My ---------- */
-function mapBlock(label) {
-  return CONFIG.mapImage ? `<div class="map img" style="background-image:url('${esc(CONFIG.mapImage)}')">${esc(label)}</div>` : `<div class="map">MAP PLACEHOLDER<br>${esc(label)}</div>`;
-}
 function findmyView() {
   return {
     title: "Find My",
     render: (v, n) => {
-      if (n.tab === "People") { const p = (D.findmy && D.findmy.people) || []; return `<h2 class="heading">People</h2>${p.length ? card(p.map((x, i) => row(avatar(x.name), x.name, x.detail || "", "toastText", x.name + " — location details aren't available", "", { noChev: true }))) : empty("Share Your Location", "Friends and family who share their location with you will appear here.")}`; }
-      if (n.tab === "Items") return `<h2 class="heading">Items</h2>${empty("No Items", "Items you've added with Find My will appear here.")}`;
-      if (n.tab === "Me") { const me = D.findmy || {}; return `<h2 class="heading">Me</h2>${card([row(avatar(CONFIG.owner), CONFIG.owner, "This iPhone", "", "", "", { noChev: true }), ...(typeof me.shareMyLocation === "boolean" ? [row("◎", "Share My Location", "", "", "", "", { toggle: S.toggles.shareLoc ?? me.shareMyLocation, key: "shareLoc" })] : [])])}`; }
-      return `<h2 class="heading">Devices</h2>${mapBlock("Use your own map image")}<div class="eyebrow">Devices</div>${card(D.devices.map((d, i) => row("▣", d.name, d.detail, "device", String(i), d.status)))}${note("Location data is fictional. Nothing is tracked.")}`;
+      const tab = n.tab || "Devices";
+      if (tab === "People") return `<h2 class="heading">People</h2>${D.findmy.people.length ? card(D.findmy.people.map(p => row("👤", p.name, p.loc, "toastText", p.loc, p.dist || ""))) : empty("No People Sharing Location")}`;
+      if (tab === "Devices") return `<h2 class="heading">Devices</h2>${card(D.devices.map(d => row("💻", d.name, d.detail, "toastText", d.detail, d.status || "")))}`;
+      if (tab === "Items") return `<h2 class="heading">Items</h2>${empty("No Items")}`;
+      return `<h2 class="heading">Me</h2>${card([row("☺", CONFIG.owner, "Sharing My Location", "toastText", "Location is sharing"), row("🔋", "Battery", "100%", "toastText", "Fully charged")])}`;
     }
   };
 }
-function deviceView(i) { const d = D.devices[i]; return { title: d.name, render: () => `<div class="note"><b class="note-title">${esc(d.name)}</b>${esc(d.detail)}</div><div style="height:10px"></div>${kv([["Status", d.status]])}` }; }
 
-/* ---------- Settings, Apple Account, iCloud, Family Sharing ---------- */
-const SET_ROOT = [["Airplane Mode", "✈", "#ed9a31", false], ["Wi-Fi", "◔", "#1685f8"], ["Bluetooth", "ᛒ", "#1685f8"], ["Mobile Service", "▥", "#32b96b"], ["Battery", "▰", "#32b96b"], ["General", "⚙", "#9297a1"], ["Accessibility", "◉", "#1685f8"], ["Camera", "◎", "#9297a1"], ["Privacy & Security", "✋", "#1685f8"], ["Apps", "▦", "#9297a1"]];
-const SET_DETAIL = {
-  "Wi-Fi": [{ label: "Wi-Fi", toggle: true }],
-  "Bluetooth": [{ label: "Bluetooth", toggle: true }],
-  "Mobile Service": [{ label: "Mobile Data", toggle: true }, { label: "Data Roaming", toggle: false }],
-  "Battery": [{ label: "Low Power Mode", toggle: false }, { label: "Battery Health & Charging" }],
-  "General": [{ label: "About" }, { label: "Software Update" }, { label: "iPhone Storage" }, { label: "AirDrop" }, { label: "VPN & Device Management" }],
-  "Accessibility": [{ label: "Vision" }, { label: "Physical and Motor" }, { label: "Hearing" }],
-  "Camera": [{ label: "Formats" }, { label: "Record Video" }],
-  "Privacy & Security": [{ label: "Location Services" }, { label: "Tracking" }, { label: "Photos" }, { label: "Safety Check" }, { label: "App Privacy Report" }],
-  "Apps": []
-};
+/* ---------- Settings ---------- */
 function settingsView() {
   return {
-    title: "Settings", q: "",
-    search: q => { const l = SET_ROOT.filter(s => has(q, s[0])); return card(l.map(s => { const ic = `<div class="row-icon" style="background:${s[2]};color:#fff">${s[1]}</div>`; return s[3] !== undefined ? row(ic, s[0], "", "", "", "", { toggle: S.toggles[s[0]] ?? s[3], key: s[0] }) : row(ic, s[0], "", "setting", s[0]); })) || empty("No Results"); },
-    render: v => `<h2 class="heading">Settings</h2>${sbar(v)}<div class="profile" data-do="apple"><div class="avatar">${esc(initials(CONFIG.owner)[0])}</div><div><b>${esc(CONFIG.owner)}</b><small>Apple Account, iCloud, and more</small></div><span class="chev" style="margin-left:auto">›</span></div><div id="list">${v.search(v.q || "")}</div>${note("Settings are simulated; nothing changes on a real device.")}`
-  };
-}
-function settingDetailView(name) {
-  const rows = (D.settings && D.settings[name]) || SET_DETAIL[name] || [];
-  return { title: name, render: () => rows.length ? card(rows.map(r => r.toggle !== undefined ? row("", r.label, "", "", "", "", { toggle: S.toggles[name + r.label] ?? r.toggle, key: name + r.label }).replace('<div class="row-icon"></div>', "") : row("", r.label, r.value || "", "leaf", r.label, "", { cls: "leaf" }).replace('<div class="row-icon"></div>', ""))) : empty("Nothing to show", "") };
-}
-function appleView() {
-  const fam = D.family;
-  return {
-    title: "Apple Account",
-    render: () => `<div class="center">${avatar(CONFIG.owner, { cls: "big-avatar", txt: initials(CONFIG.owner)[0] })}<h2 class="note-title">${esc(CONFIG.owner)}</h2></div>
-      ${card([row("👤", "Personal Information", "", "leaf", "Personal Information"), row("🔒", "Sign-In & Security", "", "leaf", "Sign-In & Security"), row("▭", "Payment & Shipping", "", "leaf", "Payment & Shipping")])}
-      <div style="height:12px"></div>${card([row("☁", "iCloud", "", "icloud"), row("A", "Media & Purchases", "", "leaf", "Media & Purchases"), row("◎", "Find My", "", "leaf", "Find My"), row("👪", "Family", "", "family", "", fam && fam.members ? fam.members.length + " Members" : "")])}
-      <div class="eyebrow">Devices</div>${card(D.devices.map((d, i) => row("▣", d.name, d.detail, "device", String(i))))}
-      ${note("Family Sharing and the device list are separate: sharing a subscription or iCloud+ plan never exposes another member's photos, messages, notes or passwords.")}`
-  };
-}
-function icloudView() { return { title: "iCloud", render: () => `<div class="eyebrow">Saved to iCloud</div>${card(D.icloud.map(s => row("☁", s.name, "", "leaf", s.name, s.value)))}` }; }
-function familyView() {
-  const f = D.family;
-  return {
-    title: "Family",
-    render: () => `<div class="eyebrow">Members</div>${card(f.members.map(m => row(avatar(m.name), m.name + (m.you ? " (Me)" : ""), m.role || "", "toastText", "Member details aren't available", "", { noChev: true })))}${f.features && f.features.length ? `<div class="eyebrow">Shared With Your Family</div>${card(f.features.map(x => row("✓", x.name, "", "", "", x.value || "", { noChev: true })))}` : ""}${note("Everyone uses their own Apple Account. Add roles and shared features in data.js → D.family.")}`
+    title: "Settings",
+    render: () => `<h2 class="heading">Settings</h2>${card([
+      row(avatar(CONFIG.owner, { cls: "mini-avatar" }), CONFIG.owner, "Apple Account, iCloud and more", "toastText", CONFIG.owner),
+      row("✈", "Airplane Mode", "", "", "", "", { toggle: !!S.toggles.airplane, key: "airplane" }),
+      row("📶", "Wi-Fi", S.toggles.wifi === false ? "Off" : "Connected", "toastText", "Wi-Fi is on"),
+      row("🔵", "Bluetooth", "On", "toastText", "Bluetooth is on"),
+      row("🔋", "Battery", "100%", "toastText", "Battery Health is normal")
+    ])}${card([
+      row("⚙", "General", "", "toastText", "General Settings"),
+      row("🎛", "Control Centre", "", "toastText", "Control Centre settings"),
+      row("🔆", "Display & Brightness", "", "toastText", "Display settings"),
+      row("🔊", "Sounds & Haptics", "", "toastText", "Sound settings")
+    ])}`
   };
 }
 
-/* ---------- Maps, Reminders, Voice Memos, Passwords, University, Bank, Weather ---------- */
-function mapsView() {
-  return { title: "Maps", q: "", search: q => { const l = D.maps.map((m, i) => ({ m, i })).filter(x => has(q, x.m.name, x.m.sub)); return l.length ? `<div class="eyebrow">Recent</div>${card(l.map(({ m, i }) => row("⌖", m.name, m.sub, "map", String(i))))}` : empty("No Results"); }, render: v => `<h2 class="heading">Maps</h2>${sbar(v, "Search Maps")}${mapBlock("Saved places and recent searches")}${listBox(v)}` };
-}
+/* ---------- Reminders ---------- */
 function remindersView() {
-  return { title: "Reminders", render: () => `<h2 class="heading">Reminders</h2>${card(D.reminders.map((r, i) => `<div class="row rem ${r.done ? "done" : ""}" data-do="rem" data-a="${i}"><span class="chk ${r.done ? "on" : ""}"></span><div class="row-main"><b>${esc(r.title)}</b></div></div>`))}` };
+  return {
+    title: "Reminders", q: "",
+    search: q => { const l = D.reminders.map((r, i) => ({ r, i })).filter(x => has(q, typeof x.r === "string" ? x.r : x.r.title)); return l.length ? card(l.map(({ r }) => row("📋", typeof r === "string" ? r : r.title, typeof r === "string" ? "" : r.sub || "", "toastText", "Reminder checked", "", { noChev: true }))) : empty("No Reminders"); },
+    render: v => `<h2 class="heading">Reminders</h2>${sbar(v)}${listBox(v)}`
+  };
 }
+
+/* ---------- Voice Memos ---------- */
 function voiceView() {
-  return { title: "Voice Memos", render: () => `<h2 class="heading">All Recordings</h2>${D.voiceMemos.length ? card(D.voiceMemos.map((m, i) => `<div class="row"><div class="row-main"><b>${esc(m.title)}</b><small>${esc(m.date || "")}</small></div><div class="vm" style="display:flex;align-items:center;gap:8px;color:#d65d75"><button class="vplay" data-vid="m|${i}" style="width:30px;height:30px;border-radius:50%;border:0;background:#fbe9ed;color:#d65d75;padding:0">▶</button><div class="wave" style="width:54px;height:16px;background:repeating-linear-gradient(90deg,currentColor 0 2px,transparent 2px 5px);opacity:.5"></div><small class="vtime meta" style="min-width:28px">${esc(m.duration)}</small></div></div>`)) : empty("No Recordings")}` };
-}
-function passwordsView() { return { title: "Passwords", render: () => `<h2 class="heading">Passwords</h2>${card(D.passwords.map((p, i) => row("🔑", p.site, p.user || "••••••••", "password", String(i))))}${note("Placeholders only — never enter real credentials.")}` }; }
-function passwordView(i) { const p = D.passwords[i]; return { title: p.site, render: () => `${kv([["Website", p.site], ["User Name", p.user || ""], ["Password", "••••••••••"]])}<p class="muted">Viewing a password requires authentication.</p>` }; }
-function universityView() { return { title: "University", render: () => `<h2 class="heading">University</h2><div class="profile"><div class="avatar">U</div><div><b>Student portal</b><small>${esc(CONFIG.owner)}</small></div></div>${card([row("▦", "Timetable", "Seminars and lectures", "uni", "timetable"), row("▤", "Course materials", "Reading lists and documents", "uni", "materials"), row("✉", "Announcements", "University notices", "uni", "announcements"), row("▣", "Library account", "Loans and due dates", "uni", "library")])}` }; }
-function uniDetail(k) {
-  const c = { timetable: D.calendar.map(e => e.day + " — " + e.title + " · " + e.place).join("\n"), materials: "Reading list placeholder\nSeminar article placeholder\nLecture slides placeholder", announcements: "No new announcements.", library: "Borrowed items and due dates placeholder." };
-  return { title: k[0].toUpperCase() + k.slice(1), render: () => `<div class="note">${esc(c[k])}</div>` };
-}
-function bankView() { return { title: "Banking", render: () => `<h2 class="heading">Banking</h2><div class="note"><small>Available balance</small><h2 style="margin:4px 0">£—</h2></div><div style="height:10px"></div>${card([row("↕", "Recent activity", "", "bank", "Recent activity"), row("⚙", "Cards & settings", "", "bank", "Cards & settings")])}${note("Fictional banking app. No real balance or credentials.")}` }; }
-function weatherView() { const w = CONFIG.weather; return { title: "Weather", render: () => `<div class="note center"><div style="font-size:44px">☁</div><div style="font-size:36px">${esc(w.temp)}</div><b>${esc(w.cond)}</b><p>${esc(w.place)}</p></div>` }; }
-
-/* ---------- deep links (notifications, search results) ---------- */
-function openTarget(t) {
-  resetApp(t.app); openApp(t.app);
-  if (t.chat) openChat(t.chat);
-  else if (t.note) push(noteView(t.note));
-  else if (t.email != null) push(emailView(t.email));
-  else if (t.event != null) push(eventView(t.event));
-  else if (t.contact) push(contactView(t.contact));
-  else if (t.photo) { const [i, j] = t.photo.split("|").map(Number); push(photoView(i, j)); }
-  else if (t.playlist != null) push(playlistView(t.playlist));
-  else if (t.site != null) push(pageView(hist()[t.site].title, hist()[t.site].url));
-  else if (t.reminders) { /* just open */ }
+  return {
+    title: "Voice Memos",
+    render: () => `<h2 class="heading">Voice Memos</h2>${D.voiceMemos.length ? card(D.voiceMemos.map((m, i) => {
+      const playing = S.voice && S.voice.id === `v|${i}`;
+      return `<div class="row"><button class="vplay" data-vid="v|${i}" aria-label="Play recording">▶</button><div class="row-main"><b>${esc(m.title)}</b><small>${esc(m.date || "Yesterday")} · ${esc(m.duration || "0:10")}</small></div>${playing ? `<div class="wave" style="width:40px"></div>` : ""}</div>`;
+    })) : empty("No Recordings")}`
+  };
 }
 
-/* ---------- Spotlight search ---------- */
-function spotIndex(q) {
-  const out = [], add = (g, t, s, go) => out.push({ g, t, s, go });
-  APPS.filter(a => has(q, a.n)).forEach(a => add("Apps", a.n, "", { app: a.id }));
-  if (!q) return out;
-  D.contacts.forEach(c => has(q, c.name, c.phone, c.email) && add("Contacts", c.name, c.sub, { app: "contacts", contact: c.name }));
-  D.chats.forEach(c => { if (has(q, c.name)) add("Messages", c.name, previewOf(c.messages.at(-1)), { app: "messages", chat: c.id }); c.messages.forEach(m => m.s && has(q, m.s) && add("Messages", c.name, m.s, { app: "messages", chat: c.id })); });
-  D.notes.forEach(n => has(q, n.title, n.body) && add("Notes", n.title, n.body.replace(/\n+/g, " ").slice(0, 60), { app: "notes", note: n.id }));
-  D.emails.forEach((e, i) => has(q, e.from, e.subject, e.body) && add("Mail", e.subject, e.from, { app: "mail", email: i }));
-  D.calendar.forEach((e, i) => has(q, e.title, e.place) && add("Calendar", e.title, e.day, { app: "calendar", event: i }));
-  hist().forEach((h, i) => has(q, h.title, h.url) && add("Safari", h.title, "History", { app: "safari", site: i }));
-  albums().forEach((a, i) => a.items.forEach((it, j) => has(q, it.name, it.loc) && add("Photos", it.name, a.name, { app: "photos", photo: i + "|" + j })));
-  D.playlists.forEach((p, i) => { has(q, p.name) && add("Music", p.name, p.subtitle, { app: "music", playlist: i }); p.tracks.forEach(t => has(q, t[0], t[1]) && add("Music", t[0], t[1], { app: "music", playlist: i })); });
-  D.reminders.forEach(r => has(q, r.title) && add("Reminders", r.title, "", { app: "reminders" }));
-  return out;
+/* ---------- Passwords ---------- */
+function passwordsView() {
+  return {
+    title: "Passwords",
+    render: () => `<h2 class="heading">Passwords</h2>${card(D.passwords.map(p => row("🔑", p.site, p.user || "••••••••", "toastText", "Protected password")))}`
+  };
 }
-function paintSearch(q) {
-  const res = spotIndex(q); S.spot = res; const groups = {};
-  res.forEach((r, i) => { (groups[r.g] = groups[r.g] || []).push([r, i]); });
-  const html = Object.entries(groups).map(([g, l]) => `<div class="group-title">${g}</div>` + l.slice(0, 5).map(([r, i]) => `<div class="result" data-sp="${i}"><b>${esc(r.t)}</b>${r.s ? `<br><small style="color:#888">${esc(r.s)}</small>` : ""}</div>`).join("")).join("");
-  $("#searchResults").innerHTML = html || `<p class="muted center">No Results</p>`;
+
+/* ---------- University & Banking & Weather ---------- */
+function universityView() {
+  return {
+    title: "University",
+    render: () => `<h2 class="heading">University</h2>${card([
+      row("🏫", "Student Portal", "UCL Student Portal", "toastText", "Opening Portal"),
+      row("📚", "Library Account", "Books borrowed and due dates", "toastText", "Opening Library"),
+      row("📅", "Timetable", "Current semester schedule", "toastText", "Opening Timetable")
+    ])}`
+  };
 }
-function openSearch() { screen("search"); $("#searchInput").value = ""; paintSearch(""); }
+function bankView() {
+  return {
+    title: "Banking",
+    render: () => `<h2 class="heading">Banking</h2>${card([
+      row("£", "Everyday Account", "•••• 4821", "toastText", "Balance: £1,240.50"),
+      row("💷", "Savings", "•••• 9102", "toastText", "Balance: £3,410.00")
+    ])}`
+  };
+}
+function weatherView() {
+  const w = CONFIG.weather;
+  return {
+    title: "Weather",
+    render: () => `<div class="center" style="padding:30px 0"><b>${esc(w.place)}</b><h1 style="font-size:64px;margin:10px 0">${esc(w.temp)}</h1><p>${esc(w.cond)}</p></div>`
+  };
+}
 
-/* ---------- actions ---------- */
-const ACTIONS = {
-  chat: a => openChat(a),
-  storyPick: a => {
-    const st = D.story, c = chatById(st.chat), s = st.steps[S.step]; if (!s) return;
-    const o = s.options[+a];
-    c.messages.push({ f: "out", t: "Today " + s.t[0], s: o.me, status: "Read " + s.t[1] }, { f: "in", t: "Today " + s.t[1], s: o.them });
-    const fresh = (s.clues || []).filter(addClue).length;
-    S.step++;
-    navOf().stack.at(-1).scroll = null; paint();
-    if (fresh) toast("Investigation notebook updated");
-  },
-  notebook: () => push(notebookView()),
-  attach: a => { const [src, label] = a.split("|"); push({ title: "Photo", render: () => `<div class="viewer">${src ? `<img src="${esc(src)}" alt="">` : esc(label)}</div>` }); },
-  call: a => push(callView(+a)),
-  contact: a => push(contactView(a)),
-  msgContact: a => { const c = D.chats.find(x => x.name === a || a.startsWith(x.name)); if (c) { resetApp("messages"); openApp("messages"); openChat(c.id); } else toast("No conversation with " + a); },
-  toastText: a => toast(a),
-  leaf: () => toast("Not included in this simulation"),
-  dial: a => { const n = navOf(); n.dial = (n.dial || "") + a; $("#dialed").textContent = n.dial; },
-  dialDel: () => { const n = navOf(); n.dial = (n.dial || "").slice(0, -1); $("#dialed").textContent = n.dial; },
-  dialCall: () => { const n = navOf(); toast(n.dial ? "Calling " + n.dial + "…" : "Enter a number"); },
-  album: a => push(albumView(+a)),
-  photo: a => { const [i, j] = a.split("|").map(Number), n = navOf(); (n.stack.at(-1).isPhoto ? replaceTop : push)(photoView(i, j)); },
-  playlists: () => push(playlistsView()), songs: () => push(songsView()),
-  playlist: a => push(playlistView(+a)),
-  play: a => { const [pi, ti] = a.split("|").map(Number); S.playing = { t: D.playlists[pi].tracks[ti], pi, on: true }; saveScroll(); paint(); },
-  miniToggle: () => { if (S.playing) { S.playing.on = !S.playing.on; paintMini(); } },
-  inbox: () => push(inboxView()), mailbox: a => push({ title: a, render: () => `<h2 class="heading">${esc(a)}</h2>${empty("No Mail")}` }),
-  email: a => push(emailView(+a)),
-  event: a => push(eventView(+a)),
-  notesAll: () => push(notesListView(null)), folder: a => push(notesListView(a)), note: a => push(noteView(a)),
-  wallet: a => push(walletCardView(+a)), txn: a => push(txnView(+a)),
-  file: a => push(folderView(+a)),
-  site: a => { const h = hist()[+a]; push(pageView(h.title, h.url)); }, reading: a => { const r = D.readingList[+a]; push(pageView(r.title, r.sub)); },
-  device: a => push(deviceView(+a)),
-  setting: a => push(settingDetailView(a)), apple: () => push(appleView()), icloud: () => push(icloudView()), family: () => push(familyView()),
-  toggle: (a, el) => { const base = el.classList.contains("on"); S.toggles[a] = !base; el.classList.toggle("on", !base); },
-  map: a => toast(D.maps[+a].name),
-  rem: (a, el) => { const r = D.reminders[+a]; r.done = !r.done; el.classList.toggle("done", r.done); el.querySelector(".chk").classList.toggle("on", r.done); },
-  password: a => push(passwordView(+a)),
-  uni: a => push(uniDetail(a)),
-  bank: a => push({ title: a, render: () => `<div class="note">Nothing to show.</div>` })
-};
+/* ---------- Media Modal ---------- */
+function viewMedia(src, title) {
+  const modal = document.createElement("div");
+  modal.className = "media-modal";
+  modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;color:#fff;";
+  const isVid = String(src).endsWith(".mp4") || title === "Video";
+  modal.innerHTML = `<button style="position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer">✕</button>
+    ${isVid ? `<video src="${esc(src)}" controls autoplay style="max-width:90%;max-height:80%"></video>` : `<img src="${esc(src)}" style="max-width:90%;max-height:80%;object-fit:contain;" alt="">`}
+    <p style="margin-top:10px">${esc(title)}</p>`;
+  modal.querySelector("button").onclick = () => modal.remove();
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  document.body.append(modal);
+}
 
-/* ---------- events ---------- */
-document.addEventListener("click", e => {
-  const t = e.target;
-  if (t.closest("[data-nav=homebar]")) return homebar();
-  const vid = t.closest("[data-vid]"); if (vid) return toggleVoice(vid);
-  const tab = t.closest("[data-tab]");
-  if (tab) { const n = navOf(); n.tab = tab.dataset.tab; n.stack[0].q = ""; n.stack[0].scroll = 0; return paint(); }
-  const act = t.closest("[data-do]");
-  if (act && !act.disabled) { const fn = ACTIONS[act.dataset.do]; if (fn) fn(act.dataset.a, act); return; }
-  const app = t.closest("[data-app]"); if (app) return openApp(app.dataset.app);
-  const nt = t.closest("[data-notif]");
-  if (nt) { S.pending = CONFIG.notifications[+nt.dataset.notif].open || null; return openPass(); }
-  const sp = t.closest("[data-sp]"); if (sp) return openTarget(S.spot[+sp.dataset.sp].go);
-  const pg = t.closest("[data-page]"); if (pg) { const el = $("#pages"); return el.scrollTo({ left: +pg.dataset.page * el.clientWidth, behavior: "smooth" }); }
-  const a = t.closest("[data-action]");
-  if (a) {
-    const k = a.dataset.action;
-    if (k === "home") goHome(); else if (k === "lock") lockPhone(); else if (k === "send") sendMessage();
-    else if (k === "search") openSearch(); else if (k === "flashlight") toast("Flashlight"); else if (k === "camera") toast("Camera isn't available in this simulation");
-    else if (k === "plus") toast("Attachments aren't available in this simulation");
+/* ---------- Event Delegation ---------- */
+function bindEvents() {
+  document.addEventListener("click", e => {
+    const btn = e.target.closest("[data-do], [data-app], [data-tab], [data-page], [data-notif], .app-icon, .vplay");
+    if (!btn) return;
+    
+    if (btn.classList.contains("vplay") || btn.dataset.vid) {
+      toggleVoice(btn);
+      return;
+    }
+    if (btn.classList.contains("app-icon") || btn.dataset.app) {
+      const appId = btn.dataset.app;
+      if (S.screen === "lock") { S.pending = appId; openPass(); }
+      else openApp(appId);
+      return;
+    }
+    if (btn.dataset.tab) {
+      const n = navOf(); if (n) { n.tab = btn.dataset.tab; n.stack = [(ROOTS[S.current] || (() => [genericView(S.current)]))()[0]]; paint(); }
+      return;
+    }
+    if (btn.dataset.notif) {
+      const notif = CONFIG.notifications[+btn.dataset.notif];
+      if (notif && notif.open) {
+        S.pending = notif.open.app;
+        if (notif.open.chat) S.activeChat = notif.open.chat;
+        openPass();
+      }
+      return;
+    }
+    const action = btn.dataset.do;
+    const arg = btn.dataset.a;
+    if (action === "toggle") { S.toggles[arg] = !S.toggles[arg]; paint(); return; }
+    if (action === "chat") { openChat(arg); return; }
+    if (action === "storyPick") {
+      const st = D.story, step = st.steps[S.step], opt = step.options[+arg], chat = chatById(st.chat);
+      if (chat) {
+        chat.messages.push({ f: "out", t: step.t[0], s: opt.me });
+        chat.messages.push({ f: "in", t: step.t[1], s: opt.them });
+      }
+      if (step.clues) step.clues.forEach(ci => addClue(ci));
+      S.step++;
+      paint();
+      return;
+    }
+    if (action === "notebook") { openApp("notebook"); return; }
+    if (action === "attach") {
+      const [src, title] = arg.split("|");
+      viewMedia(src, title);
+      return;
+    }
+    if (action === "dial") { const n = navOf(); if (n) { n.dial = (n.dial || "") + arg; paint(); } return; }
+    if (action === "dialDel") { const n = navOf(); if (n && n.dial) { n.dial = n.dial.slice(0, -1); paint(); } return; }
+    if (action === "dialCall") { toast("Calling…"); return; }
+    if (action === "contact") { push(contactView(arg)); return; }
+    if (action === "msgContact") { const c = chatById("ezra"); openApp("messages"); openChat(c ? c.id : "ezra"); return; }
+    if (action === "toastText") { toast(arg); return; }
+    if (action === "photo") { const [i, j] = arg.split("|").map(Number); push(photoView(i, j)); return; }
+    if (action === "album") { push(albumView(+arg)); return; }
+    if (action === "playlists") { push(playlistsView()); return; }
+    if (action === "songs") { push({ title: "Songs", render: () => songsView().render() }); return; }
+    if (action === "playlist") { push(playlistView(+arg)); return; }
+    if (action === "play") {
+      const [pi, ti] = arg.split("|").map(Number);
+      const pl = D.playlists[pi], t = pl.tracks[ti];
+      S.playing = { pi, ti, t, on: true };
+      paintMini();
+      paint();
+      return;
+    }
+    if (action === "miniToggle") { if (S.playing) { S.playing.on = !S.playing.on; paintMini(); } return; }
+    if (action === "inbox") { push(inboxView()); return; }
+    if (action === "mailbox") { push({ title: arg, render: () => empty(arg + " is empty") }); return; }
+    if (action === "email") { push(emailView(+arg)); return; }
+    if (action === "event") { push(eventView(+arg)); return; }
+    if (action === "notesAll") { push(notesListView(null)); return; }
+    if (action === "folder") { push(notesListView(arg)); return; }
+    if (action === "note") { push(noteView(arg)); return; }
+    if (action === "wallet") { push(walletCardView(+arg)); return; }
+    if (action === "txn") { push(txnView(+arg)); return; }
+    if (action === "file") { push(folderView(+arg)); return; }
+    if (action === "safariItem") { const h = hist()[+arg]; if (h && h.url) toast("Opening " + h.url); return; }
+  });
+
+  document.addEventListener("input", e => {
+    const q = e.target.closest("[data-q]");
+    if (q) {
+      const n = navOf();
+      if (n) { n.q = q.value; const l = $("#list"); if (l) l.innerHTML = n.search(n.q, n); }
+    }
+  });
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      const msg = e.target.closest("#messageInput");
+      if (msg) { sendMessage(); e.preventDefault(); }
+    }
+  });
+
+  const backBtn = $("#back"); if (backBtn) backBtn.addEventListener("click", back);
+  const homeBarBtn = $("#homebar"); if (homeBarBtn) homeBarBtn.addEventListener("click", homebar);
+  const lockBtn = $("#lockBtn"); if (lockBtn) lockBtn.addEventListener("click", lockPhone);
+  const unlockBtn = $("#unlockBtn"); if (unlockBtn) unlockBtn.addEventListener("click", openPass);
+
+  const passcodePad = $("#dots")?.parentElement;
+  if (passcodePad) {
+    passcodePad.addEventListener("click", e => {
+      const b = e.target.closest("button");
+      if (b) {
+        const k = b.dataset.k || b.textContent.trim();
+        if (k) digit(k);
+      }
+    });
   }
-});
-document.addEventListener("input", e => {
-  if (e.target.matches("[data-q]")) {
-    const n = navOf(), v = n.stack.at(-1), l = $("#list"); v.q = e.target.value; if (l) l.innerHTML = v.search(v.q, n);
-  }
-});
-document.addEventListener("keydown", e => {
-  if (S.screen === "passcode") { if (/^\d$/.test(e.key)) digit(e.key); if (e.key === "Backspace") digit("del"); }
-  if (e.key === "Enter" && e.target.id === "messageInput") { e.preventDefault(); sendMessage(); }
-  if (e.key === "Escape" && S.screen === "app") back();
-  if (e.key === "Escape" && S.screen === "search") goHome();
-});
-$("#unlock").addEventListener("click", openPass);
-$("#keypad").addEventListener("click", e => { const b = e.target.closest("[data-key]"); if (b) digit(b.dataset.key); });
-$("#back").addEventListener("click", back);
-$("#sideButton").addEventListener("click", () => { if (S.screen === "lock") openPass(); else lockPhone(); });
-$("#searchInput").addEventListener("input", e => paintSearch(e.target.value));
-
-/* touch gestures: swipe up on Lock Screen, swipe up from the bottom edge to go home, swipe down on Home Screen for Search */
-let touch = null;
-$("#screen").addEventListener("touchstart", e => { const t = e.touches[0], r = $("#screen").getBoundingClientRect(); touch = { x: t.clientX, y: t.clientY, edge: t.clientY > r.bottom - 60 }; }, { passive: true });
-$("#screen").addEventListener("touchend", e => {
-  if (!touch) return;
-  const t = e.changedTouches[0], dy = t.clientY - touch.y, dx = t.clientX - touch.x;
-  if (S.screen === "lock" && dy < -45) openPass();
-  else if (touch.edge && dy < -50 && Math.abs(dx) < 90 && (S.screen === "app" || S.screen === "search")) goHome();
-  else if (S.screen === "home" && dy > 90 && Math.abs(dx) < 50) openSearch();
-  touch = null;
-}, { passive: true });
-
-/* ---------- init ---------- */
-function fit() {
-  const s = innerWidth <= 720 ? 1 : Math.min(1, (innerHeight - 24) / 844);
-  $("#stage").style.setProperty("--s", s.toFixed(3));
 }
-function init() {
-  D.reminders = D.reminders.map(r => typeof r === "string" ? { title: r, done: false } : r);
-  document.body.classList.toggle("show-notes", !!CONFIG.authorNotes);
-  buildLock(); buildHome(); screen("lock"); fit(); updateClueCount();
-  const nb = $("#openNotebook"), rs = $("#restart");
-  if (nb) nb.addEventListener("click", () => { if (S.screen === "lock" || S.screen === "passcode") { S.pending = { app: "notebook" }; openPass(); } else openTarget({ app: "notebook" }); });
-  if (rs) rs.addEventListener("click", () => location.reload());
-}
-addEventListener("resize", fit);
-init();
+
+document.addEventListener("DOMContentLoaded", () => {
+  buildLock();
+  buildHome();
+  updateClueCount();
+  bindEvents();
+  screen("lock");
+});
