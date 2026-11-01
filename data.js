@@ -5,7 +5,7 @@
    (app.js) never contains story text, so you can change dialogue, dates,
    images and clues here without touching the engine.
 
-   All entries bew are the placeholders from the original prototype.
+   All entries below are the placeholders from the original prototype.
    Nothing here is story canon unless you decide it is.
 
    IMAGES / AUDIO (all optional, always relative paths, e.g. "assets/x.jpg"):
@@ -20,7 +20,7 @@
    ========================================================================== */
 
 const CONFIG = {
-  passcode: "280108",lo
+  passcode: "280108",
   owner: "Melia Nadya",
   date: "Thursday, 22 October",          // shown on Lock Screen and Home Screen
   dayNumber: "22",                       // number on the Calendar icon
@@ -65,11 +65,7 @@ const APPS = [
 
 const D = {
 
-  /* ---- MESSAGES ----------------------------------------------------------
-     message fields:  f:"in"|"out"   t:"Today 09:12" (day word + HH:MM)
-       s:"text"  |  voice:1,duration:"0:18",transcript:"…",src:"…"  |  img:"…",imgLabel:"…"  |  video:"…",duration:"0:12"
-       status:"Read 09:15"  (optional; shown under the newest outgoing message, default "Delivered")
-     chat fields:  id, name, avatar:"BF", img:"…", sms:true (green bubbles instead of blue)           */
+  /* ---- MESSAGES ---------------------------------------------------------- */
   chats: [
     { id: "ezra", name: "Ezra", avatar: "E", messages: [
       { f: "in", t: "Yesterday 21:08", s: "You home?" },
@@ -78,7 +74,6 @@ const D = {
       { f: "out", t: "Yesterday 21:11", s: "long and boring. mostly boring" },
       { f: "in", t: "Today 10:03", s: "Have you eaten?" },
       { f: "out", t: "Today 10:05", s: "not yet. don't start" },
-      /* --- locker conversation (seeded half). The interactive half is D.story below. --- */
       { f: "in", t: "Today 10:22", s: "You've gone quiet. Everything alright?" },
       { f: "out", t: "Today 10:23", s: "yeah. just got to campus" },
       { f: "in", t: "Today 10:23", s: "That's not an answer." },
@@ -98,12 +93,7 @@ const D = {
     ] }
   ],
 
-  /* ---- LOCKER STORY (interactive half of the Ezra conversation) ------------
-     After the seeded messages in D.chats (Ezra), the reader picks Melia's replies.
-     chat: which conversation it runs in.  end: text shown when the choices are used up.
-     steps[i]: prompt, t:[Melia's send time, Ezra's reply time] ("HH:MM", must be <= CONFIG.time),
-               clues:[indexes into D.clues unlocked by this step],
-               options:[{ me:"Melia's reply", them:"Ezra's answer" }]                          */
+  /* ---- LOCKER STORY ---- */
   story: {
     chat: "ezra",
     end: "Conversation paused · You can explore the phone.",
@@ -131,7 +121,7 @@ const D = {
     ]
   },
 
-  /* ---- INVESTIGATION NOTEBOOK clues: [title, text]. Shown as "Not yet established" until unlocked by a story step. */
+  /* ---- INVESTIGATION NOTEBOOK ---- */
   clues: [
     ["The locker", "The underwear was left inside Melia's assigned UCL locker, not somewhere public-facing."],
     ["The stain", "The blood stain was old enough to have dried. Melia recognises it as her own period blood."],
@@ -140,7 +130,7 @@ const D = {
     ["The timeline", "Ezra was away at a Van Der Berg customer gathering when Melia first found it."]
   ],
 
-  /* ---- PHONE / FACETIME ---- kind: "Mobile" | "FaceTime" | "FaceTime Audio"; missed:true shows red */
+  /* ---- PHONE / FACETIME ---- */
   calls: [
     { name: "Ezra", kind: "FaceTime", when: "Yesterday, 22:16", duration: "1 hour 20min" },
     { name: "Rania", kind: "Mobile", when: "Yesterday, 17:48", duration: "6 min" },
@@ -148,7 +138,7 @@ const D = {
     { name: "James Roomate", kind: "FaceTime Audio", when: "Sunday, 20:32", duration: "5 min" }
   ],
 
-  /* ---- CONTACTS ---- add  phone:"…"  email:"…"  fav:true  img:"…"  when you have them */
+  /* ---- CONTACTS ---- */
   contacts: [
     { name: "Rania", sub: "Mobile · saved contact" },
     { name: "James Roomate", sub: "Mobile · saved contact" },
@@ -162,42 +152,16 @@ const D = {
       name: "Recents",
       count: 128,
       items: [
-        {
-          name: "Coffee after class",
-          src: "asset/coffee21.jpg",
-          date: "Today",
-          loc: "London"
-        },
-          {
-          name: "Breakfast",
-          src: "asset/breakfast.jpg",
-          date: "Yesterday",
-          loc: "Belgravia"
-        },
-        {
-          name: "writing",
-          src: "asset/ezra.jpg",
-          date: "Lat week",
-          loc: "Belgravia"
-        },
-           {
-          name: "bags",
-          src: "asset/bags.jpg",
-          date: "Last week",
-          loc: "Belgravia"
-        },
-      pt
-        {
-          name: "Ezra",
-          src: "asset/111.jpg",
-          date: "Last week",
-          loc: "Belgravia"
-        }
+        { name: "Coffee after class", src: "asset/coffee21.jpg", date: "Today", loc: "London" },
+        { name: "Breakfast", src: "asset/breakfast.jpg", date: "Yesterday", loc: "Belgravia" },
+        { name: "writing", src: "asset/ezra.jpg", date: "Last week", loc: "Belgravia" },
+        { name: "bags", src: "asset/bags.jpg", date: "Last week", loc: "Belgravia" },
+        { name: "Ezra", src: "asset/111.jpg", date: "Last week", loc: "Belgravia" }
       ]
     },
-    {
+    { 
       name: "People", 
-      count: 34,
+      count: 34, 
       items: [
         { name: "Best friend", src: "", date: "", loc: "" }, 
         { name: "Melia & best friend", src: "", date: "", loc: "" }, 
@@ -240,21 +204,21 @@ const D = {
     { id: "shopping", title: "shopping", folder: "Personal", date: "Sunday", body: "shampoo\nlaundry detergent\ncoffee\nbread\n\nremember tote bag" }
   ],
 
-  /* ---- MAIL ---- optional: to:"…", unread:true */
+  /* ---- MAIL ---- */
   emails: [
     { from: "UCL Student Services", subject: "Your student timetable", date: "Today", preview: "Your timetable is available to view.", body: "Hello Melia,\n\nYour student timetable is available through the student portal. Please check the portal for room changes and updated seminar information.\n\nStudent Services" },
     { from: "Library Services", subject: "Book due date reminder", date: "Yesterday", preview: "A borrowed item is due soon.", body: "This is a reminder that one of your borrowed library items is due soon. Please check your library account for details." },
     { from: "Online Store", subject: "Your order confirmation", date: "Monday", preview: "Thank you for your order.", body: "Thank you for your order. This is a fictional sample receipt." }
   ],
 
-  /* ---- MUSIC ---- tracks: [title, artist, length]; optional recentlyPlayed: same format */
+  /* ---- MUSIC ---- */
   playlists: [
     { name: "on the way back", subtitle: "Made by Melia · 24 songs", tracks: [["Track placeholder 01", "Artist placeholder", "3:42"], ["Track placeholder 02", "Artist placeholder", "2:58"], ["Track placeholder 03", "Artist placeholder", "4:06"]] },
     { name: "don't talk to me", subtitle: "Made by Melia · 18 songs", tracks: [["Track placeholder 04", "Artist placeholder", "3:21"], ["Track placeholder 05", "Artist placeholder", "3:57"]] },
     { name: "liked songs", subtitle: "Saved music · 86 songs", tracks: [["Track placeholder 06", "Artist placeholder", "3:32"], ["Track placeholder 07", "Artist placeholder", "4:11"]] }
   ],
 
-  /* ---- WALLET ---- Add real passes/cards here later. transactions: card:0 = index into wallet (default 0) */
+  /* ---- WALLET ---- */
   wallet: [
     { type: "Debit Card", name: "Everyday account", number: "•••• 4821", issuer: "Bank placeholder" },
     { type: "Student Pass", name: "University ID", number: "Student pass · placeholder", issuer: "University" }
@@ -265,12 +229,7 @@ const D = {
     { merchant: "Transport", date: "Monday · 09:04", amount: "£2.80", method: "Contactless" }
   ],
 
-  /* ---- APPLE ACCOUNT / ICLOUD / FAMILY SHARING ---------------------------
-     Family Sharing: each member keeps their own Apple Account. Sharing is limited to the
-     features the organiser switches on (subscriptions, purchases, iCloud+ storage, location
-     sharing, Screen Time…). iCloud+ storage sharing does NOT expose photos or files.
-     role: "Organizer" | "Adult" | "Parent/Guardian" | "Child"  — left blank until you decide.
-     features: [{name:"iCloud+", value:"Shared"}]  — left empty until you decide.                    */
+  /* ---- APPLE ACCOUNT ---- */
   family: {
     members: [
       { name: "Melia Nadya", you: true, role: "" },
@@ -288,7 +247,7 @@ const D = {
     { name: "Unrecognised device", detail: "Editable story placeholder; not a real security finding", status: "Review" }
   ],
 
-  /* ---- FIND MY ---- people: [{name, detail}]; shareMyLocation: true|false (leave undefined to hide the row) */
+  /* ---- FIND MY ---- */
   findmy: { people: [] },
 
   /* ---- CALENDAR / REMINDERS ---- */
@@ -299,14 +258,14 @@ const D = {
   ],
   reminders: ["Return library book", "Buy laundry detergent", "Send photos", "Check seminar reading"],
 
-  /* ---- SAFARI ---- history entries: "Title"  or  {title, kind:"search", when:"Today"} */
+  /* ---- SAFARI ---- */
   safari: ["UCL student portal", "how to reset a combination lock", "library catalogue", "train times"],
   readingList: [{ title: "Saved article", sub: "University reading placeholder" }],
 
-  /* ---- FILES ---- "Folder"  or  {name, items:[{name, kind:"PDF", size:"1.2 MB", date:"Monday"}]} */
+  /* ---- FILES ---- */
   files: ["Downloads", "University", "Documents", "On My iPhone", "iCloud Drive"],
 
-  /* ---- VOICE MEMOS / PASSWORDS / MAPS ---- never put real credentials here */
+  /* ---- VOICE MEMOS / PASSWORDS / MAPS ---- */
   voiceMemos: [{ title: "Seminar notes", duration: "2:14", date: "Monday" }],
   passwords: [
     { site: "University account", user: "" }, { site: "Social account", user: "" }, { site: "Banking", user: "" }
