@@ -1,50 +1,31 @@
 /* ==========================================================================
    MELIA'S iPHONE — EDITABLE STORY CONTENT
-   --------------------------------------------------------------------------
-   Everything the reader can discover lives in this file. The interface code
-   (app.js) never contains story text, so you can change dialogue, dates,
-   images and clues here without touching the engine.
-
-   All entries below are the placeholders from the original prototype.
-   Nothing here is story canon unless you decide it is.
-
-   IMAGES / AUDIO (all optional, always relative paths, e.g. "assets/x.jpg"):
-     CONFIG.wallpaper.lock / .home   lock-screen and home-screen wallpaper
-     CONFIG.mapImage                 map picture (Find My, Maps)
-     chat.img / contact.img          avatar photo
-     message {img:"…"}               photo attachment   {video:"…",duration:"0:12"} video
-     message {voice:1, src:"…"}      audio file for a voice message
-     album.cover / photo item .src   album cover / the photo itself
-     playlist.art                    playlist artwork
-   If a path is left out, a neutral placeholder is shown instead.
    ========================================================================== */
 
 const CONFIG = {
   passcode: "280108",
   owner: "Melia Nadya",
-  date: "Thursday, 22 October",          // shown on Lock Screen and Home Screen
-  dayNumber: "22",                       // number on the Calendar icon
-  time: "10:41",                         // the phone's clock (24h, HH:MM). Keep it later than your newest "Today" message.
+  date: "Thursday, 22 October",
+  dayNumber: "22",
+  time: "10:41",
   weather: { temp: "18°", cond: "Cloudy", place: "London" },
-  authorNotes: false,                    // true = show small "placeholder / editor" notes inside the apps
+  authorNotes: false,
   wallpaper: { lock: "", home: "" },
   mapImage: "",
-  libraryAlbum: "Recents",               // the Photos album that is shown as the Library
+  libraryAlbum: "Recents",
   notifications: [
-    { app: "Messages", title: "Ezra Mikael", time: "09:16", body: "Audio Message", open: { app: "messages", chat: "Ezra" } },
+    { app: "Messages", title: "Ezra Mikael", time: "09:16", body: "Audio Message", open: { app: "messages", chat: "ezra" } },
     { app: "Calendar", title: "Reminder", time: "08:41", body: "Seminar reading — check the article", open: { app: "calendar" } }
   ]
 };
 
-/* id, name, glyph, icon colour (c), glyph colour (fg), dock:1 = lives in the Dock.
-   Home Screen pages are filled automatically in this order, 16 icons per page. */
 const APPS = [
   { id: "messages", n: "Messages", g: "●", c: "#1685f8", dock: 1 },
   { id: "phone", n: "Phone", g: "☎", c: "#32c66a", dock: 1 },
   { id: "photos", n: "Photos", g: "✿", c: "#fff", fg: "#e65a8d", dock: 1 },
   { id: "music", n: "Music", g: "♫", c: "#fa3159", dock: 1 },
   { id: "mail", n: "Mail", g: "✉", c: "#1685f8" },
-  { id: "calendar", n: "Calendar", g: "·", c: "#fff", fg: "#e34a4a" },   // glyph replaced by CONFIG.dayNumber
+  { id: "calendar", n: "Calendar", g: "·", c: "#fff", fg: "#e34a4a" },
   { id: "notes", n: "Notes", g: "▤", c: "#fff", fg: "#b28a32" },
   { id: "wallet", n: "Wallet", g: "▣", c: "#292d36" },
   { id: "facetime", n: "FaceTime", g: "◉", c: "#35c86a" },
@@ -60,7 +41,7 @@ const APPS = [
   { id: "university", n: "University", g: "U", c: "#263d66" },
   { id: "bank", n: "Banking", g: "£", c: "#173f35" },
   { id: "weather", n: "Weather", g: "☁", c: "#8bb7e9" },
-  { id: "notebook", n: "Investigation", g: "✎", c: "#f1c94a", fg: "#493b16" }   // reader's clue notebook (delete this line to hide the icon)
+  { id: "notebook", n: "Investigation", g: "✎", c: "#f1c94a", fg: "#493b16" }
 ];
 
 const D = {
@@ -101,7 +82,7 @@ const D = {
       { prompt: "What does Melia say?", t: ["10:32", "10:33"], clues: [0], options: [
         { me: "i genuinely don't know how someone got it. it was in my locker when i opened it.", them: "Could be someone messing around. Did you leave the locker unlocked?" },
         { me: "it's been three days and i still keep thinking about it. it's so fucking weird.", them: "I can imagine. You shouldn't have to deal with that at university." },
-        { me: "i just want to know how they got it. that's the part i can't figure out.", them: "We can think through who could access the locker, if you like." }
+        { me: "i just want to know how they got it. that's the part i can'figure out.", them: "We can think through who could access the locker, if you like." }
       ] },
       { prompt: "Ezra asks if she wants him to help. How does she respond?", t: ["10:34", "10:35"], clues: [1], options: [
         { me: "can you? i don't even know where to start", them: "Of course. We can start with the practical things." },
@@ -146,108 +127,54 @@ const D = {
     { name: "University reception", sub: "Work · saved contact" }
   ],
 
- /* ---- PHOTOS ---- */
+  /* ---- PHOTOS ---- */
   photos: [
     {
       name: "Recents",
       count: 128,
       items: [
-        {
-          name: "Coffee after class",
-          src: "asset/coffee21.jpg",
-          date: "Today",
-          loc: "London"
-        },
-        {
-          name: "Breakfast",
-          src: "asset/breakfast.jpg",
-          date: "Yesterday",
-          loc: "Belgravia"
-        },
-        {
-          name: "writing",
-          src: "asset/ezra.jpg",
-          date: "Last week",
-          loc: "Belgravia"
-        },
-        {
-          name: "bags",
-          src: "asset/bags.jpg",
-          date: "Last week",
-          loc: "Belgravia"
-        },
-        {
-          name: "Ezra",
-          src: "asset/111.jpg",
-          date: "Last week",
-          loc: "Belgravia"
-        },
-        {
-          name: "Belgravia 1",
-          src: "asset/Belgravia1.jpg",
-          date: "Last week",
-          loc: "Belgravia"
-        },
-        {
-          name: "Belgravia Street",
-          src: "asset/belgarvia.jpg",
-          date: "Last week",
-          loc: "Belgravia"
-        },
-        {
-          name: "Books",
-          src: "asset/books.jpg",
-          date: "Last week",
-          loc: "Library"
-        },
-        {
-          name: "Mess",
-          src: "asset/mess.jpg",
-          date: "Last week",
-          loc: "Home"
-        },
-        {
-          name: "Study",
-          src: "asset/study.jpg",
-          date: "Last week",
-          loc: "Library"
-        },
+        { name: "Coffee after class", src: "asset/coffee21.jpg", date: "Today", loc: "London" },
+        { name: "Breakfast", src: "asset/breakfast.jpg", date: "Yesterday", loc: "Belgravia" },
+        { name: "writing", src: "asset/ezra.jpg", date: "Last week", loc: "Belgravia" },
+        { name: "bags", src: "asset/bags.jpg", date: "Last week", loc: "Belgravia" },
+        { name: "Ezra", src: "asset/111.jpg", date: "Last week", loc: "Belgravia" },
+        { name: "Belgravia 1", src: "asset/Belgravia1.jpg", date: "Last week", loc: "Belgravia" },
+        { name: "Belgravia Street", src: "asset/belgarvia.jpg", date: "Last week", loc: "Belgravia" },
+        { name: "Books", src: "asset/books.jpg", date: "Last week", loc: "Library" },
+        { name: "Mess", src: "asset/mess.jpg", date: "Last week", loc: "Home" },
+        { name: "Study", src: "asset/study.jpg", date: "Last week", loc: "Library" },
+        { name: "Campus Clip", video: "asset/video1.mp4", duration: "0:15", date: "Yesterday", loc: "London" }
       ]
     },
     { 
       name: "People", 
       count: 34, 
       items: [
-        { name: "Best friend", src: "", date: "", loc: "" }, 
-        { name: "Melia & best friend", src: "", date: "", loc: "" }, 
-        { name: "Group photo", src: "", date: "", loc: "" }
+        { name: "Best friend", src: "asset/111.jpg", date: "Oct 12", loc: "London" }, 
+        { name: "Group photo", src: "asset/belgarvia.jpg", date: "Sep 28", loc: "Belgravia" }
       ] 
     },
     { 
       name: "University", 
       count: 26, 
       items: [
-        { name: "Lecture hall", src: "", date: "", loc: "" }, 
-        { name: "Library table", src: "", date: "", loc: "" }, 
-        { name: "Campus building", src: "", date: "", loc: "" }
+        { name: "Library table", src: "asset/books.jpg", date: "Oct 18", loc: "UCL Library" }, 
+        { name: "Study session", src: "asset/study.jpg", date: "Oct 15", loc: "Campus" }
       ] 
     },
     { 
       name: "Screenshots", 
       count: 41, 
       items: [
-        { name: "Timetable", src: "", date: "", loc: "" }, 
-        { name: "Reading list", src: "", date: "", loc: "" }, 
-        { name: "Saved address", src: "", date: "", loc: "" }
+        { name: "Coffee receipt", src: "asset/coffee21.jpg", date: "Today", loc: "London" }
       ] 
     },
     { 
       name: "Videos", 
       count: 12, 
       items: [
-        { name: "Voice note video", src: "", date: "", loc: "" }, 
-        { name: "Dinner clip", src: "", date: "", loc: "" }, 
-        { name: "Campus walk", src: "", date: "", loc: "" }
+        { name: "Campus Walk", video: "asset/video1.mp4", duration: "0:15", date: "Yesterday", loc: "London" },
+        { name: "Evening Clip", video: "asset/video2.mp4", duration: "0:30", date: "Last week", loc: "Belgravia" }
       ] 
     }
   ],
@@ -255,7 +182,7 @@ const D = {
   /* ---- NOTES ---- */
   notes: [
     { id: "locker", title: "locker??", folder: "Personal", date: "Today", body: "old combination doesn't work.\n\ncheck the student handbook again.\nask reception tomorrow.\n\nmaybe I wrote the number somewhere else." },
-    { id: "accounts", title: "accounts — update later", folder: "Personal", date: "Monday", body: "uni email — check recovery email\ninstagram — change old password\nspotify — old one?\n\nBANKING:\nuse the banking app's official password reset. don't put the actual password here." },
+    { id: "accounts", title: "accounts — update later", folder: "Personal", date: "Monday", body: "uni email — check recovery email\nspotify — old one?\n\nBANKING:\nuse the banking app's official password reset. don't put the actual password here." },
     { id: "shopping", title: "shopping", folder: "Personal", date: "Sunday", body: "shampoo\nlaundry detergent\ncoffee\nbread\n\nremember tote bag" }
   ],
 
@@ -268,50 +195,54 @@ const D = {
 
   /* ---- MUSIC ---- */
   playlists: [
-    { name: "on the way back", subtitle: "Made by Melia · 24 songs", tracks: [["Track placeholder 01", "Artist placeholder", "3:42"], ["Track placeholder 02", "Artist placeholder", "2:58"], ["Track placeholder 03", "Artist placeholder", "4:06"]] },
-    { name: "don't talk to me", subtitle: "Made by Melia · 18 songs", tracks: [["Track placeholder 04", "Artist placeholder", "3:21"], ["Track placeholder 05", "Artist placeholder", "3:57"]] },
-    { name: "liked songs", subtitle: "Saved music · 86 songs", tracks: [["Track placeholder 06", "Artist placeholder", "3:32"], ["Track placeholder 07", "Artist placeholder", "4:11"]] }
+    { name: "on the way back", subtitle: "Made by Melia · 24 songs", tracks: [["Track 01", "Artist Name", "3:42"], ["Track 02", "Artist Name", "2:58"], ["Track 03", "Artist Name", "4:06"]] },
+    { name: "don't talk to me", subtitle: "Made by Melia · 18 songs", tracks: [["Track 04", "Artist Name", "3:21"], ["Track 05", "Artist Name", "3:57"]] },
+    { name: "liked songs", subtitle: "Saved music · 86 songs", tracks: [["Track 06", "Artist Name", "3:32"], ["Track 07", "Artist Name", "4:11"]] }
   ],
 
   /* ---- WALLET ---- */
   wallet: [
-    { type: "Debit Card", name: "Everyday account", number: "•••• 4821", issuer: "Bank placeholder" },
-    { type: "Student Pass", name: "University ID", number: "Student pass · placeholder", issuer: "University" }
+    { type: "Debit Card", name: "Everyday account", number: "•••• 4821", issuer: "Barclays" },
+    { type: "Student Pass", name: "University ID", number: "UCL · 2209142", issuer: "UCL Student Union" }
   ],
   transactions: [
     { merchant: "Coffee shop", date: "Today · 08:52", amount: "£4.20", method: "Debit card" },
     { merchant: "Campus shop", date: "Yesterday · 13:18", amount: "£6.75", method: "Debit card" },
-    { merchant: "Transport", date: "Monday · 09:04", amount: "£2.80", method: "Contactless" }
+    { merchant: "Transport for London", date: "Monday · 09:04", amount: "£2.80", method: "Contactless" }
   ],
 
   /* ---- APPLE ACCOUNT ---- */
   family: {
     members: [
-      { name: "Melia Nadya", you: true, role: "" },
-      { name: "Ezra Mikael", role: "" }
+      { name: "Melia Nadya", you: true, role: "Organizer" },
+      { name: "Ezra Mikael", role: "Adult" }
     ],
-    features: []
+    features: ["iCloud+ 200GB", "Apple Music Family"]
   },
   icloud: [
     { name: "Photos", value: "On" }, { name: "Notes", value: "On" },
     { name: "iCloud Drive", value: "On" }, { name: "Messages", value: "On" }
   ],
   devices: [
-    { name: "Melia's iPhone", detail: "This iPhone · Current device", status: "Current" },
-    { name: "MacBook Air", detail: "Apple Account device · placeholder", status: "Known" },
-    { name: "Unrecognised device", detail: "Editable story placeholder; not a real security finding", status: "Review" }
+    { name: "Melia's iPhone 17 Pro", detail: "This iPhone · Current device", status: "Current" },
+    { name: "MacBook Air M2", detail: "Apple Account device", status: "Known" }
   ],
 
   /* ---- FIND MY ---- */
-  findmy: { people: [] },
+  findmy: { 
+    people: [
+      { name: "Ezra Mikael", loc: "Belgravia, London", dist: "1.2 mi" },
+      { name: "Rania", loc: "Bloomsbury, London", dist: "0.4 mi" }
+    ] 
+  },
 
   /* ---- CALENDAR / REMINDERS ---- */
   calendar: [
-    { day: "Today · 11:00", title: "Psychology seminar", place: "Campus · Room placeholder" },
-    { day: "Today · 15:00", title: "Library study", place: "Main library" },
-    { day: "Tomorrow · 10:00", title: "Lecture", place: "Campus" }
+    { day: "Today · 11:00", title: "Psychology seminar", place: "UCL Main Building · Room 102" },
+    { day: "Today · 15:00", title: "Library study", place: "Science Library" },
+    { day: "Tomorrow · 10:00", title: "Lecture", place: "Cruciform Building" }
   ],
-  reminders: ["Return library book", "Buy laundry detergent", "Send photos", "Check seminar reading"],
+  reminders: ["Return library book", "Buy laundry detergent", "Send photos to Ezra", "Check seminar reading"],
 
   /* ---- SAFARI ---- */
   safari: ["UCL student portal", "how to reset a combination lock", "library catalogue", "train times"],
@@ -323,7 +254,8 @@ const D = {
   /* ---- VOICE MEMOS / PASSWORDS / MAPS ---- */
   voiceMemos: [{ title: "Seminar notes", duration: "2:14", date: "Monday" }],
   passwords: [
-    { site: "University account", user: "" }, { site: "Social account", user: "" }, { site: "Banking", user: "" }
+    { site: "University Account", user: "melia.nadya@ucl.ac.uk" }, 
+    { site: "Banking App", user: "m_nadya99" }
   ],
-  maps: [{ name: "University campus", sub: "Recent search" }, { name: "Main library", sub: "Saved place" }]
+  maps: [{ name: "UCL Campus", sub: "Gower St, London" }, { name: "Main Library", sub: "Wilkins Building" }]
 };
