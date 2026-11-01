@@ -175,21 +175,21 @@ const D = {
           loc: "Belgravia"
         },
         {
-          name: "bags",
-          src: "asset/bags.jpg",
+          name: "writing",
+          src: "asset/ezra.jpg",
           date: "Lat week",
           loc: "Belgravia"
         },
            {
           name: "bags",
           src: "asset/bags.jpg",
-          date: "Lat week",
+          date: "Last week",
           loc: "Belgravia"
         },
          {
           name: "Ezra",
           src: "asset/111.jpg",
-          date: "Lat week",
+          date: "Last week",
           loc: "Belgravia"
         },
     { 
