@@ -146,17 +146,79 @@ const D = {
     { name: "University reception", sub: "Work · saved contact" }
   ],
 
-  /* ---- PHOTOS ---- */
+ /* ---- PHOTOS ---- */
   photos: [
     {
       name: "Recents",
       count: 128,
       items: [
-        { name: "Coffee after class", src: "asset/coffee21.jpg", date: "Today", loc: "London" },
-        { name: "Breakfast", src: "asset/breakfast.jpg", date: "Yesterday", loc: "Belgravia" },
-        { name: "writing", src: "asset/ezra.jpg", date: "Last week", loc: "Belgravia" },
-        { name: "bags", src: "asset/bags.jpg", date: "Last week", loc: "Belgravia" },
-        { name: "Ezra", src: "asset/111.jpg", date: "Last week", loc: "Belgravia" }
+        {
+          name: "Coffee after class",
+          src: "asset/coffee21.jpg",
+          date: "Today",
+          loc: "London"
+        },
+        {
+          name: "Breakfast",
+          src: "asset/breakfast.jpg",
+          date: "Yesterday",
+          loc: "Belgravia"
+        },
+        {
+          name: "writing",
+          src: "asset/ezra.jpg",
+          date: "Last week",
+          loc: "Belgravia"
+        },
+        {
+          name: "bags",
+          src: "asset/bags.jpg",
+          date: "Last week",
+          loc: "Belgravia"
+        },
+        {
+          name: "Ezra",
+          src: "asset/111.jpg",
+          date: "Last week",
+          loc: "Belgravia"
+        },
+        {
+          name: "Belgravia 1",
+          src: "asset/Belgravia1.jpg",
+          date: "Last week",
+          loc: "Belgravia"
+        },
+        {
+          name: "Belgravia Street",
+          src: "asset/belgarvia.jpg",
+          date: "Last week",
+          loc: "Belgravia"
+        },
+        {
+          name: "Books",
+          src: "asset/books.jpg",
+          date: "Last week",
+          loc: "Library"
+        },
+        {
+          name: "Mess",
+          src: "asset/mess.jpg",
+          date: "Last week",
+          loc: "Home"
+        },
+        {
+          name: "Study",
+          src: "asset/study.jpg",
+          date: "Last week",
+          loc: "Library"
+        },
+        {
+          name: "Campus walk video",
+          video: "asset/hand.gif",
+          duration: "0:15",
+          date: "Yesterday",
+          loc: "London"
+        }
       ]
     },
     { 
